@@ -25,12 +25,13 @@ app.use(
 
 //const for import new routes
 const landingRoutes = require('./routes/landing');
-
+const productsRoutes = require('./routes/products');
 
 
 async function main(){
     // landing routes 
     app.use('/', landingRoutes);
+    app.use('/products', productsRoutes);
 }
 
 main();

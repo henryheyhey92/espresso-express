@@ -25,23 +25,35 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/create', async (req, res) => {
-    try {
-        const productForm = createProductForm();
-        res.render('products/create', {
-            'form': productForm.toHTML(bootstrapField)
-        })
-    } catch (e) {
-        res.status(500);
-        res.json({
-            'message': "Internal server error. Please contact administrator"
-        })
-        console.log(e);
-    }
+    // try {
+    //     const productForm = createProductForm();
+    //     res.render('products/create', {
+    //         'form': productForm.toHTML(bootstrapField)
+    //     })
+    // } catch (e) {
+    //     res.status(500);
+    //     res.json({
+    //         'message': "Internal server error. Please contact administrator"
+    //     })
+    //     console.log(e);
+    // }
+    const form = createProductForm();
+    res.render('products/create',{
+        'form':  form.toHTML(bootstrapField)
+    })
 })
 
 router.post('/create', async (req, res) => {
-    try {
-        const productForm = createProductForm();
+    // try {
+        
+    // } catch (e) {
+    //     res.status(500);
+    //     res.json({
+    //         'message': "Internal server error. Please contact administrator"
+    //     })
+    //     console.log(e);
+    // }
+    const productForm = createProductForm();
         productForm.handle(req, {
             'success': async (form) => {
                 const product = new Product();
@@ -58,13 +70,6 @@ router.post('/create', async (req, res) => {
                 })
             }
         })
-    } catch (e) {
-        res.status(500);
-        res.json({
-            'message': "Internal server error. Please contact administrator"
-        })
-        console.log(e);
-    }
 })
 
 module.exports = router;

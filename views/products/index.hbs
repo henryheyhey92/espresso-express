@@ -10,6 +10,7 @@
             <th>Qty</th>
             <th>Description</th>
             <th>Roast Type</th>
+            <th>certificate</th>
         </tr>
 
     </thead>
@@ -31,8 +32,13 @@
             <td>
                 {{this.description}}
             </td>
-             <td>
+            <td>
                 {{this.roastType.name}}
+            </td>
+            <td>
+                {{#each this.certificates}}
+                <span class="badge bg-primary">{{this.name}}</span>
+                {{/each}}
             </td>
             <td>
                 <a href="/products/{{this.id}}/update" class="btn btn-primary btn-sm">Update</a>

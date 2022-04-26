@@ -29,7 +29,7 @@ var bootstrapField = function (name, object) {
 };
 
 
-const createProductForm = (roast_type) => {
+const createProductForm = (roast_type, certificates) => {
     // first arg of forms.create takes in the config value
     // the key is the NAME of the <input type=...>
     // the value defines the properties of input
@@ -64,6 +64,13 @@ const createProductForm = (roast_type) => {
             'errorAfterField': true,
             'widget':widgets.select(), // use the dropdowns elect
             'choices':roast_type
+        }),
+        'certificates': fields.string({
+            'label': 'Certificate',
+            'required': true,
+            'errorAfterField': true,
+            'widget': widgets.multipleSelect(),
+            'choices': certificates
         })
      
     })

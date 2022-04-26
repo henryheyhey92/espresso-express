@@ -7,7 +7,10 @@ const Product = bookshelf.model('Product', {
     tableName: 'products',
     roastType(){
         return this.belongsTo('RoastType');
-    } 
+    },
+    certificates(){
+        return this.belongsToMany('Certificate');
+    }
 });
 
 const RoastType = bookshelf.model('RoastType', {
@@ -17,4 +20,11 @@ const RoastType = bookshelf.model('RoastType', {
     }
 })
 
-module.exports = { Product, RoastType};
+const Certificate = bookshelf.model('Certificate',{
+    tableName: 'certificates',
+    products() {
+        return this.belongsToMany('Product')
+    }
+})
+
+module.exports = { Product, RoastType, Certificate};

@@ -6,6 +6,16 @@ const { Product } = require('../models')
 
 //import in the Forms
 const { bootstrapField, createProductForm } = require('../forms');
+const async = require("hbs/lib/async");
+
+async function getProductById(productId) {
+    const product = await Product.where({
+        'id': productId
+    }).fetch({
+        'require': true
+    })
+    return product;
+}
 
 router.get('/', async (req, res) => {
     // #2 - fetch all the products (ie, SELECT * from products)
@@ -25,35 +35,24 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/create', async (req, res) => {
-    // try {
-    //     const productForm = createProductForm();
-    //     res.render('products/create', {
-    //         'form': productForm.toHTML(bootstrapField)
-    //     })
-    // } catch (e) {
-    //     res.status(500);
-    //     res.json({
-    //         'message': "Internal server error. Please contact administrator"
-    //     })
-    //     console.log(e);
-    // }
-    const form = createProductForm();
-    res.render('products/create',{
-        'form':  form.toHTML(bootstrapField)
-    })
+    try {
+        const productForm = createProductForm();
+        res.render('products/create', {
+            'form': productForm.toHTML(bootstrapField)
+        })
+    } catch (e) {
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+
 })
 
 router.post('/create', async (req, res) => {
-    // try {
-        
-    // } catch (e) {
-    //     res.status(500);
-    //     res.json({
-    //         'message': "Internal server error. Please contact administrator"
-    //     })
-    //     console.log(e);
-    // }
-    const productForm = createProductForm();
+    try {
+        const productForm = createProductForm();
         productForm.handle(req, {
             'success': async (form) => {
                 const product = new Product();
@@ -70,6 +69,101 @@ router.post('/create', async (req, res) => {
                 })
             }
         })
+    } catch (e) {
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+
+})
+
+//update product
+router.get('/:id/update', async (req, res) => {
+    try {
+        //retrieve product
+        const product = await getProductById(req.params.id);
+
+        //create the product form
+        const form = createProductForm();
+
+        form.fields.product_name.value = product.get('product_name');
+        form.fields.price.value = product.get('price');
+        form.fields.qty.value = product.get('qty');
+        form.fields.description.value = product.get('description');
+
+        res.render('products/update', {
+            'form': form.toHTML(bootstrapField),
+            'products': product.toJSON()
+        })
+    } catch (e) {
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+})
+
+
+router.post('/:id/update', async (req, res) => {
+    try {
+        const product = await getProductById(req.params.id);
+
+        const form = createProductForm();
+        form.handle(req, {
+            'success': async (form) => {
+                product.set(form.data);
+                product.save();
+                res.redirect('/products')
+            },
+            'error': async (form) => {
+                res.render('products/update', {
+                    'form': form.toHTML(bootstrapField),
+                    'products': product.toJSON()
+                })
+            }
+        })
+    } catch (e) {
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+})
+
+
+router.get('/:id/delete', async (req, res) => {
+    //fetch the product that we want to delete
+    try {
+        const product = await getProductById(req.params.id);
+
+        res.render('products/delete', {
+            'products': product.toJSON()
+        })
+    } catch (e) {
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+})
+
+router.post('/:id/delete', async (req, res) => {
+    try{
+        const product = await getProductById(req.params.id);
+        await product.destroy();
+        res.redirect('/products');
+    }catch(e){
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
 })
 
 module.exports = router;

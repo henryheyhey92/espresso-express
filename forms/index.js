@@ -58,23 +58,7 @@ const createProductForm = () => {
             'errorAfterField': true,
             'validators': [validators.maxlength(1000)]
         })
-        // ,
-        // 'category_id': fields.string({
-        //     'label': 'Category',
-        //     'required': true,
-        //     'errorAfterField': true,
-        //     'widget': widgets.select(), // use the dropdowns elect
-        //     'choices': categories
-        // }),
-        // 'tags': fields.string({
-        //     'required': true,
-        //     'errorAfterField': true,
-        //     'widget': widgets.multipleSelect(),
-        //     'choices': tags // [ [1, 'Snack'], [2, 'Healthy'] ]
-        // }),
-        // 'image_url': fields.string({
-        //     'widget': widgets.hidden()
-        // })
+     
     })
 }
 

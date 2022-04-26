@@ -14,24 +14,30 @@
     </thead>
     <tbody>
         {{#each products}}
-            <tr>
-                <td>
-                    {{this.id}}
-                </td>
-                <td>
-                    {{this.product_name}}
-                </td>
-                <td>
-                    {{this.price}}
-                </td>
-                <td>
-                    {{this.qty}}
-                </td>
-                <td>
-                    {{this.description}}
-                </td>
-            </tr>
+        <tr>
+            <td>
+                {{this.id}}
+            </td>
+            <td>
+                {{this.product_name}}
+            </td>
+            <td>
+                {{this.price}}
+            </td>
+            <td>
+                {{this.qty}}
+            </td>
+            <td>
+                {{this.description}}
+            </td>
+            <td>
+                <a href="/products/{{this.id}}/update" class="btn btn-primary btn-sm">Update</a>
+                <a href="/products/{{this.id}}/delete" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+
+        </tr>
         {{/each}}
+        <a href="/products/create" class="btn btn-primary btn-sm">Create</a>
     </tbody>
 </table>
 {{/block}}

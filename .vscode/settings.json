@@ -17,5 +17,8 @@
    "editor.defaultFormatter": "HookyQR.beautify",
    "[javascript]": {
       "editor.defaultFormatter": "vscode.typescript-language-features"
+   },
+   "[handlebars]": {
+      "editor.defaultFormatter": "vscode.html-language-features"
    }
 }

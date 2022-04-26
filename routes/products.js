@@ -90,15 +90,12 @@ router.post('/create', async (req, res) => {
                 await product.save();
 
                 let certs = form.data.certificates; //table name
-                console.log("here 1");
-                console.log(certs);
+                
                 if (certs) {
                     // the reason we split the tags by comma
                     // is because attach function takes in an array of ids
 
                     // add new tags to the M:n tags relationship
-                    console.log("here 2");
-                    console.log(certs);
                     await product.certificates().attach(certs.split(',')); //don understand this part
                 }
                 res.redirect('/products');

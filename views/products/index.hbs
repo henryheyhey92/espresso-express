@@ -9,6 +9,7 @@
             <th>Price</th>
             <th>Qty</th>
             <th>Description</th>
+            <th>Roast Type</th>
         </tr>
 
     </thead>
@@ -29,6 +30,9 @@
             </td>
             <td>
                 {{this.description}}
+            </td>
+             <td>
+                {{this.roastType.name}}
             </td>
             <td>
                 <a href="/products/{{this.id}}/update" class="btn btn-primary btn-sm">Update</a>

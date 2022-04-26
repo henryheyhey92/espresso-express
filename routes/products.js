@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 
 //#1 import in the Product model
-const { Product } = require('../models')
+const { Product, RoastType } = require('../models')
 
 //import in the Forms
 const { bootstrapField, createProductForm } = require('../forms');
-const async = require("hbs/lib/async");
+// const async = require("hbs/lib/async");
 
 async function getProductById(productId) {
     const product = await Product.where({
@@ -17,10 +17,20 @@ async function getProductById(productId) {
     return product;
 }
 
+async function getAllRoastType(){
+    const allRoastType = await RoastType.fetchAll().map( roastType => {
+        return [ roastType.get('id'), roastType.get('name')]
+    });
+    return allRoastType;
+}
+//retrieve roast_type table info with roastType, 
+//function in the model
 router.get('/', async (req, res) => {
     // #2 - fetch all the products (ie, SELECT * from products)
     try {
-        let products = await Product.collection().fetch();
+        let products = await Product.collection().fetch({
+            withRelated:['roastType']
+        });
         res.render('products/index', {
             'products': products.toJSON() //#3 convert collection to JSON
         })
@@ -36,7 +46,8 @@ router.get('/', async (req, res) => {
 
 router.get('/create', async (req, res) => {
     try {
-        const productForm = createProductForm();
+        const allRoastType = await getAllRoastType();
+        const productForm = createProductForm(allRoastType);
         res.render('products/create', {
             'form': productForm.toHTML(bootstrapField)
         })
@@ -52,7 +63,9 @@ router.get('/create', async (req, res) => {
 
 router.post('/create', async (req, res) => {
     try {
-        const productForm = createProductForm();
+        const allRoastType = await getAllRoastType();
+        const productForm = createProductForm(allRoastType);
+     
         productForm.handle(req, {
             'success': async (form) => {
                 const product = new Product();
@@ -60,6 +73,7 @@ router.post('/create', async (req, res) => {
                 product.set('price', form.data.price);
                 product.set('qty', form.data.qty);
                 product.set('description', form.data.description);
+                product.set('roast_type_id', form.data.roast_type_id);
                 await product.save();
                 res.redirect('/products');
             },
@@ -84,14 +98,15 @@ router.get('/:id/update', async (req, res) => {
     try {
         //retrieve product
         const product = await getProductById(req.params.id);
-
+        const allRoastType = await getAllRoastType();
         //create the product form
-        const form = createProductForm();
+        const form = createProductForm(allRoastType);
 
         form.fields.product_name.value = product.get('product_name');
         form.fields.price.value = product.get('price');
         form.fields.qty.value = product.get('qty');
         form.fields.description.value = product.get('description');
+        form.fields.roast_type_id.value = product.get('roast_type_id');
 
         res.render('products/update', {
             'form': form.toHTML(bootstrapField),
@@ -110,8 +125,8 @@ router.get('/:id/update', async (req, res) => {
 router.post('/:id/update', async (req, res) => {
     try {
         const product = await getProductById(req.params.id);
-
-        const form = createProductForm();
+        const allRoastType = await getAllRoastType();
+        const form = createProductForm(allRoastType);
         form.handle(req, {
             'success': async (form) => {
                 product.set(form.data);

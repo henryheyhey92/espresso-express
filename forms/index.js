@@ -3,7 +3,7 @@
 const forms = require('forms')
 const fields = forms.fields;
 const validators = forms.validators;
-// const widgets = forms.widgets;
+const widgets = forms.widgets;
 
 
 var bootstrapField = function (name, object) {
@@ -29,7 +29,7 @@ var bootstrapField = function (name, object) {
 };
 
 
-const createProductForm = () => {
+const createProductForm = (roast_type) => {
     // first arg of forms.create takes in the config value
     // the key is the NAME of the <input type=...>
     // the value defines the properties of input
@@ -57,6 +57,13 @@ const createProductForm = () => {
             'required': true,
             'errorAfterField': true,
             'validators': [validators.maxlength(1000)]
+        }),
+        'roast_type_id': fields.string({
+            'label':'Roast Type',
+            'required': true,
+            'errorAfterField': true,
+            'widget':widgets.select(), // use the dropdowns elect
+            'choices':roast_type
         })
      
     })

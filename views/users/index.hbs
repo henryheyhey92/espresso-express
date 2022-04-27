@@ -1,0 +1,57 @@
+{{#extends 'base'}}
+
+{{#block 'content'}}
+ <a href="/users/register" class="btn btn-primary btn-sm">User Registration</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Address</th>
+            <th>Country</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Password</th>
+            <th>User type</th>
+        </tr>
+
+    </thead>
+    <tbody>
+        {{#each users}}
+        <tr>
+            <td>
+                {{this.id}}
+            </td>
+            <td>
+                {{this.first_name}}
+            </td>
+            <td>
+                {{this.last_name}}
+            </td>
+            <td>
+                {{this.address}}
+            </td>
+            <td>
+                {{this.country}}
+            </td>
+            <td>
+                {{this.email}}
+            </td>
+            <td>
+                {{this.phone}}
+            </td>
+            <td>
+                {{this.password}}
+            </td>
+            <td>
+                {{this.user_type}}
+            </td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+{{/block}}
+
+{{/extends}}

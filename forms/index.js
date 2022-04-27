@@ -76,7 +76,59 @@ const createProductForm = (roast_type, certificates) => {
     })
 }
 
+const createUserRegistration = () => {
+    return forms.create({
+        'first_name': fields.string({
+            'required': true,
+            'errorAfterField': true,
+            'validators': [validators.maxlength(100)]
+        }),
+        'last_name': fields.string({
+            'required': true,
+            'errorAfterField': true,
+            'validators': [validators.maxlength(100)]
+        }),
+        'address': fields.string({
+            'required': true,
+            'errorAfterField': true,
+            'validators': [validators.maxlength(200)]
+        }),
+        'country': fields.string({
+            'required': true,
+            'errorAfterField': true,
+            'validators': [validators.maxlength(50)]
+        }),
+        'email': fields.email({
+            'required': true,
+            'errorAfterField': true,
+            'validators': [validators.email()]
+        }),
+        'phone': fields.string({
+            'required': true,
+            'errorAfterField': true,
+            'validators': [validators.integer(), validators.maxlength(20)]
+        }),
+        'password': fields.password({
+            'required': validators.required("Please input at least 6 characters or more and have to be alphanumeric"),
+            'errorAfterField': true,
+            'validators': [validators.minlength(6), validators.alphanumeric()]
+        }),
+        'confirm_password': fields.password({
+            'required': validators.required("don\'t you know your own password"),
+            'errorAfterField': true,
+            'validators': [validators.matchField('password')]
+        }),
+        'user_type': fields.string({
+            'required': validators.required("Please input user type"),
+            'errorAfterField': true,
+            'validators': [validators.maxlength(1)]
+        })
+
+    })
+}
+
 module.exports = {
     bootstrapField,
-    createProductForm
+    createProductForm,
+    createUserRegistration
 }

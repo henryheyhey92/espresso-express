@@ -27,4 +27,8 @@ const Certificate = bookshelf.model('Certificate',{
     }
 })
 
-module.exports = { Product, RoastType, Certificate};
+const User = bookshelf.model('User', {
+    tableName: 'users'
+})
+
+module.exports = { Product, RoastType, Certificate, User};

@@ -111,6 +111,7 @@ router.post('/create', async (req, res) => {
                 if(ori){
                     await product.origins().attach(ori.split(','));
                 }
+                req.flash("success_messages", `New Product ${product.get('product_name')} has been created`)
 
                 res.redirect('/products');
             },

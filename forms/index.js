@@ -7,6 +7,7 @@ const widgets = forms.widgets;
 
 
 var bootstrapField = function (name, object) {
+
     if (!Array.isArray(object.widget.classes)) {
         object.widget.classes = [];
     }
@@ -63,11 +64,11 @@ const createProductForm = (roast_type, certificates, origins) => {
             'validators': [validators.maxlength(1000)]
         }),
         'roast_type_id': fields.string({
-            'label':'Roast Type',
+            'label': 'Roast Type',
             'required': true,
             'errorAfterField': true,
-            'widget':widgets.select(), // use the dropdowns elect
-            'choices':roast_type
+            'widget': widgets.select(), // use the dropdowns elect
+            'choices': roast_type
         }),
         'certificates': fields.string({
             'label': 'Certificate',
@@ -76,14 +77,14 @@ const createProductForm = (roast_type, certificates, origins) => {
             'widget': widgets.multipleSelect(),
             'choices': certificates
         }),
-        'origins': fields.array({
+        'origins': fields.string({
             'label': 'Origin',
             'required': true,
             'errorAfterField': true,
             'widget': widgets.multipleSelect(),
             'choices': origins
         })
-     
+
     })
 }
 
@@ -138,8 +139,30 @@ const createUserForm = () => {
     })
 }
 
+
+const createLoginForm = () => {
+    return forms.create({
+        'email': fields.string({
+            required: true,
+            errorAfterField: true,
+            cssClasses: {
+                label: ['form-label mt-2']
+            }
+        }),
+        'password': fields.password({
+            required: true,
+            errorAfterField: true,
+            cssClasses: {
+                label: ['form-label mt-4']
+            }
+        }),
+    })
+
+}
+
 module.exports = {
     bootstrapField,
     createProductForm,
-    createUserForm
+    createUserForm,
+    createLoginForm
 }

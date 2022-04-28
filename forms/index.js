@@ -76,7 +76,7 @@ const createProductForm = (roast_type, certificates) => {
     })
 }
 
-const createUserRegistration = () => {
+const createUserForm = () => {
     return forms.create({
         'first_name': fields.string({
             'required': true,
@@ -130,5 +130,5 @@ const createUserRegistration = () => {
 module.exports = {
     bootstrapField,
     createProductForm,
-    createUserRegistration
+    createUserForm
 }

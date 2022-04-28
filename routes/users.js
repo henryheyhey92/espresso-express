@@ -1,9 +1,17 @@
 const express = require("express");
 const router = express.Router();
 
-const {User} = require('../models');
-const { createUserRegistration, bootstrapField } = require('../forms');
+const { User, Product } = require('../models');
+const { createUserForm, bootstrapField } = require('../forms');
 
+async function getUserById(userId) {
+    const user = await User.where({
+        'id': userId
+    }).fetch({
+        'require': true
+    })
+    return user;
+}
 
 router.get('/', async (req, res) => {
     try {
@@ -11,7 +19,7 @@ router.get('/', async (req, res) => {
         res.render('users/index', {
             'users': users.toJSON()
         })
-    }catch(e){
+    } catch (e) {
         res.status(500);
         res.json({
             'message': "Internal server error. Please contact administrator"
@@ -20,16 +28,16 @@ router.get('/', async (req, res) => {
     }
 })
 
-router.get('/register', async (req,res)=>{
+router.get('/register', async (req, res) => {
     // display the registration form
-    const registerForm = createUserRegistration();
+    const registerForm = createUserForm();
     res.render('users/register', {
         'form': registerForm.toHTML(bootstrapField)
     })
 })
 
 router.post('/register', async (req, res) => {
-    const registerForm = createUserRegistration();
+    const registerForm = createUserForm();
     registerForm.handle(req, {
         'success': async (form) => {
             const user = new User({
@@ -55,9 +63,97 @@ router.post('/register', async (req, res) => {
     })
 })
 
+router.get('/:id/update', async (req, res) => {
+    try {
+        const user = await getUserById(req.params.id);
+
+        const form = createUserForm();
+
+        form.fields.first_name.value = user.get('first_name');
+        form.fields.last_name.value = user.get('last_name');
+        form.fields.address.value = user.get('address');
+        form.fields.country.value = user.get('country');
+        form.fields.email.value = user.get('email');
+        form.fields.phone.value = user.get('phone');
+        form.fields.password.value = user.get('password');
+        form.fields.confirm_password.value = user.get('confirm_password');
+        form.fields.user_type.value = user.get('user_type');
+
+        res.render('users/update', {
+            'form': form.toHTML(bootstrapField),
+            'users': user.toJSON()
+        })
+
+    } catch (e) {
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+})
 
 
-router.get('/login', (req,res)=>{
+router.post('/:id/update', async (req, res) => {
+    try {
+        const user = await getUserById(req.params.id);
+        const form = createUserForm();
+
+        form.handle(req, {
+            'success': async (form) => {
+                user.set(form.data);
+                user.save();
+                res.redirect('/users');
+            },
+            'error': async (form) => {
+                res.render('users/update', {
+                    'form': form.toHTML(bootstrapField),
+                    'users': user.toJSON()
+                })
+            }
+        })
+    } catch (e) {
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+})
+
+router.get('/:id/delete', async (req, res) => {
+    try{
+        const user = await getUserById(req.params.id);
+
+        res.render('users/delete', {
+            'users': user.toJSON()
+        })
+    }catch (e){
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+})
+
+router.post('/:id/delete', async (req, res) => {
+    try{
+        const user = await getUserById(req.params.id);
+        await user.destroy();
+        res.redirect('/users');
+    }catch (e){
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+})
+
+
+
+router.get('/login', (req, res) => {
     res.render('users/login')
 })
 

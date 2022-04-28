@@ -2,10 +2,11 @@ const express = require("express");
 const router = express.Router();
 
 //#1 import in the Product model
-const { Product, RoastType, Certificate} = require('../models')
+const { Product, RoastType, Certificate, Origin} = require('../models')
 
 //import in the Forms
 const { bootstrapField, createProductForm } = require('../forms');
+const async = require("hbs/lib/async");
 // const async = require("hbs/lib/async");
 
 async function getProductById(productId) {
@@ -13,7 +14,7 @@ async function getProductById(productId) {
         'id': productId
     }).fetch({
         'require': true,
-        'withRelated': ['certificates', 'roastType']
+        'withRelated': ['certificates', 'roastType', 'origins']
     })
     return product;
 }
@@ -32,6 +33,13 @@ async function getAllCerts() {
     return allCerts;
 }
 
+async function getAllOrigin() {
+    const allOrigin = await Origin.fetchAll().map(origin => {
+        return [origin.get('id'), origin.get('country_name')]
+    })
+    return allOrigin;
+}
+
 
 //retrieve roast_type table info with roastType, 
 //function in the model
@@ -39,7 +47,7 @@ router.get('/', async (req, res) => {
     // #2 - fetch all the products (ie, SELECT * from products)
     try {
         let products = await Product.collection().fetch({
-            withRelated: ['certificates', 'roastType']
+            withRelated: ['certificates', 'roastType', 'origins']
         });
         res.render('products/index', {
             'products': products.toJSON() //#3 convert collection to JSON
@@ -58,8 +66,9 @@ router.get('/create', async (req, res) => {
     try {
         const allRoastType = await getAllRoastType();
         const allCerts = await getAllCerts();
+        const allOrigin = await getAllOrigin();
         //above instance will pass information to the Product Form
-        const productForm = createProductForm(allRoastType, allCerts);
+        const productForm = createProductForm(allRoastType, allCerts, allOrigin);
         res.render('products/create', {
             'form': productForm.toHTML(bootstrapField)
         })
@@ -77,7 +86,8 @@ router.post('/create', async (req, res) => {
     try {
         const allRoastType = await getAllRoastType();
         const allCerts = await getAllCerts();
-        const productForm = createProductForm(allRoastType, allCerts);
+        const allOrigin = await getAllOrigin();
+        const productForm = createProductForm(allRoastType, allCerts, allOrigin);
 
         productForm.handle(req, {
             'success': async (form) => {
@@ -90,7 +100,7 @@ router.post('/create', async (req, res) => {
                 await product.save();
 
                 let certs = form.data.certificates; //table name
-                
+                let ori = form.data.origins;
                 if (certs) {
                     // the reason we split the tags by comma
                     // is because attach function takes in an array of ids
@@ -98,6 +108,10 @@ router.post('/create', async (req, res) => {
                     // add new tags to the M:n tags relationship
                     await product.certificates().attach(certs.split(',')); //don understand this part
                 }
+                if(ori){
+                    await product.origins().attach(ori.split(','));
+                }
+
                 res.redirect('/products');
             },
             'error': async (form) => {
@@ -123,8 +137,9 @@ router.get('/:id/update', async (req, res) => {
         const product = await getProductById(req.params.id);
         const allRoastType = await getAllRoastType();
         const allCerts = await getAllCerts();
+        const allOrigin = await getAllOrigin();
         //create the product form
-        const form = createProductForm(allRoastType, allCerts);
+        const form = createProductForm(allRoastType, allCerts, allOrigin);
 
         form.fields.product_name.value = product.get('product_name');
         form.fields.price.value = product.get('price');
@@ -134,6 +149,9 @@ router.get('/:id/update', async (req, res) => {
 
         let selectCerts = await product.related('certificates').pluck('id');
         form.fields.certificates.value = selectCerts;
+
+        let selectOri = await product.related('origins').pluck('id');
+        form.fields.origins.value = selectOri;
 
         res.render('products/update', {
             'form': form.toHTML(bootstrapField),
@@ -156,24 +174,31 @@ router.post('/:id/update', async (req, res) => {
         const form = createProductForm(allRoastType);
         form.handle(req, {
             'success': async (form) => {
-                let { certificates, ...productData } = form.data;
+                let { origins, certificates, ...productData } = form.data;
 
                 product.set(productData);
                 product.save();
 
                 let selectedCert = certificates.split(',');
+                let selectedOri = origins.split(',');
 
                 // get all the existing tags 
                 let existingCert = await product.related('certificates').pluck('id');
+                let existingOri = await product.related('origins').pluck('id');
 
                 // remove all the tags that are not selected anymore
                 let toRemove = existingCert.filter(id => selectedCert.includes(id) === false);
+                let toRemoveOri = existingOri.filter(id => selectedOri.includes(id) === false);
 
-                await product.certificates().detach(toRemove); // detach will take in an array of ids
+                await product.certificates().detach(toRemove); 
+                await product.origins().detach(toRemoveOri);
+                // detach will take in an array of ids
                 // those ids will be removed from the relationship
+
 
                 // add in all the new tags
                 await product.certificates().attach(selectedCert);
+                await product.origins().attach(selectedOri);
 
                 res.redirect('/products')
             },

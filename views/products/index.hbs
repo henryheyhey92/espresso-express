@@ -11,6 +11,7 @@
             <th>Description</th>
             <th>Roast Type</th>
             <th>certificate</th>
+            <th>origin</th>
         </tr>
 
     </thead>
@@ -38,6 +39,11 @@
             <td>
                 {{#each this.certificates}}
                 <span class="badge bg-primary">{{this.name}}</span>
+                {{/each}}
+            </td>
+            <td>
+                {{#each this.origins}}
+                <span class="badge bg-primary">{{this.country_name}}</span>
                 {{/each}}
             </td>
             <td>

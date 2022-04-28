@@ -26,10 +26,14 @@ var bootstrapField = function (name, object) {
 
     var widget = object.widget.toHTML(name, object);
     return '<div class="form-group">' + label + widget + error + '</div>';
+
+    // console.log("bootstrap field");
+    // console.log(name);
+    // return (name === 'origins')?  '<div class="form-check form-check-inline">' + label + widget + error + '</div>' : '<div class="form-group">' + label + widget + error + '</div>';
 };
 
 
-const createProductForm = (roast_type, certificates) => {
+const createProductForm = (roast_type, certificates, origins) => {
     // first arg of forms.create takes in the config value
     // the key is the NAME of the <input type=...>
     // the value defines the properties of input
@@ -71,6 +75,13 @@ const createProductForm = (roast_type, certificates) => {
             'errorAfterField': true,
             'widget': widgets.multipleSelect(),
             'choices': certificates
+        }),
+        'origins': fields.array({
+            'label': 'Origin',
+            'required': true,
+            'errorAfterField': true,
+            'widget': widgets.multipleSelect(),
+            'choices': origins
         })
      
     })

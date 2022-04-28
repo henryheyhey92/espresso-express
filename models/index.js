@@ -10,6 +10,9 @@ const Product = bookshelf.model('Product', {
     },
     certificates(){
         return this.belongsToMany('Certificate');
+    },
+    origins(){
+        return this.belongsToMany('Origin');
     }
 });
 
@@ -31,4 +34,11 @@ const User = bookshelf.model('User', {
     tableName: 'users'
 })
 
-module.exports = { Product, RoastType, Certificate, User};
+const Origin = bookshelf.model('Origin', {
+    tableName: 'origins',
+    products(){
+        return this.belongsToMany('Product')
+    }
+})
+
+module.exports = { Product, RoastType, Certificate, User, Origin};

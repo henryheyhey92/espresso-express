@@ -6,6 +6,7 @@ const { Product, RoastType, Certificate, Origin} = require('../models')
 
 //import in the Forms
 const { bootstrapField, createProductForm } = require('../forms');
+const { checkIfAuthenticated } = require('../middlewares');
 const async = require("hbs/lib/async");
 // const async = require("hbs/lib/async");
 
@@ -62,7 +63,7 @@ router.get('/', async (req, res) => {
 
 })
 
-router.get('/create', async (req, res) => {
+router.get('/create', checkIfAuthenticated, async (req, res) => {
     try {
         const allRoastType = await getAllRoastType();
         const allCerts = await getAllCerts();
@@ -82,7 +83,7 @@ router.get('/create', async (req, res) => {
 
 })
 
-router.post('/create', async (req, res) => {
+router.post('/create', checkIfAuthenticated, async (req, res) => {
     try {
         const allRoastType = await getAllRoastType();
         const allCerts = await getAllCerts();

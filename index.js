@@ -5,6 +5,7 @@ require("dotenv").config();
 const session = require('express-session');
 const flash = require('connect-flash');
 const FileStore = require('session-file-store')(session);
+const csrf = require('csurf');
 
 //create an instance of express app
 let app = express();
@@ -42,6 +43,34 @@ app.use(function (req, res, next) {
     res.locals.error_messages = req.flash("error_messages");
     next();
 });
+
+// Share the user data with hbs files
+app.use(function(req,res,next){
+    res.locals.user = req.session.user;
+    next();
+});
+
+app.use(csrf());
+
+// middle to handle csrf errors
+// if a middleware function takes 4 arguments
+// the first argument is error
+app.use(function (err, req, res, next) {
+    if (err && err.code == "EBADCSRFTOKEN") {
+        req.flash('error_messages', 'The form has expired. Please try again');
+        res.redirect('back');
+    } else {
+        next()
+    }
+});
+
+// Share CSRF with hbs files
+app.use(function(req,res,next){
+    //the req.csrfToken generate a new token 
+    // and save its to the current session
+    res.locals.csrfToken = req.csrfToken();
+    next();
+})
 
 //const for import new routes
 const landingRoutes = require('./routes/landing');

@@ -1,5 +1,12 @@
 const express = require("express");
 const router = express.Router();
+const crypto = require('crypto');
+
+const getHashedPassword = (password) => {
+    const sha256 = crypto.createHash('sha256');
+    const hash = sha256.update(password).digest('base64');
+    return hash;
+}
 
 const { User } = require('../models');
 const { createUserForm, createLoginForm, bootstrapField } = require('../forms');
@@ -47,12 +54,12 @@ router.post('/register', async (req, res) => {
                 'country': form.data.country,
                 'email': form.data.email,
                 'phone': form.data.phone,
-                'password': form.data.password,
+                'password': getHashedPassword(form.data.password),
                 'confirm_password': form.data.confirm_password,
                 'user_type': form.data.user_type
             });
             await user.save();
-            // req.flash("success_messages", "User signed up successfully!");
+            req.flash("success_messages", "User signed up successfully!");
             res.redirect('/users/login')
         },
         'error': (form) => {
@@ -75,7 +82,7 @@ router.get('/:id/update', async (req, res) => {
         form.fields.country.value = user.get('country');
         form.fields.email.value = user.get('email');
         form.fields.phone.value = user.get('phone');
-        form.fields.password.value = user.get('password');
+        form.fields.password.value = getHashedPassword(user.get('password'));
         form.fields.confirm_password.value = user.get('confirm_password');
         form.fields.user_type.value = user.get('user_type');
 
@@ -179,7 +186,7 @@ router.post('/login', async (req, res) => {
                 res.redirect('/users/login');
             } else {
                 // check if the password matches
-                if (user.get('password') === form.data.password) {
+                if (user.get('password') === getHashedPassword(form.data.password)) {
                     // add to the session that login succeed
 
                     // store the user details

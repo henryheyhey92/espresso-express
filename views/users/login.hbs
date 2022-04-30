@@ -7,7 +7,12 @@
 <form method="POST">
     <input type="hidden" name="_csrf" value="{{csrfToken}}" />
     {{{form}}}
-    <input type="submit" class="btn btn-primary" value="Login" />
+    <div style="display:inline-block" class="mt-2">
+        <input type="submit" class="btn btn-primary" value="Login" />
+        or 
+        <a href="/register" class="btn btn-primary">Sign up</a>
+    </div>
+    
 </form>
 {{/block}}
 

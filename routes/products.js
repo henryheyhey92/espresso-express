@@ -44,7 +44,7 @@ async function getAllOrigin() {
 
 //retrieve roast_type table info with roastType, 
 //function in the model
-router.get('/', async (req, res) => {
+router.get('/', checkIfAuthenticated, async (req, res) => {
     // #2 - fetch all the products (ie, SELECT * from products)
     try {
         let products = await Product.collection().fetch({
@@ -133,7 +133,7 @@ router.post('/create', checkIfAuthenticated, async (req, res) => {
 })
 
 //update product
-router.get('/:id/update', async (req, res) => {
+router.get('/:id/update', checkIfAuthenticated, async (req, res) => {
     try {
         //retrieve product
         const product = await getProductById(req.params.id);
@@ -169,7 +169,7 @@ router.get('/:id/update', async (req, res) => {
 })
 
 
-router.post('/:id/update', async (req, res) => {
+router.post('/:id/update', checkIfAuthenticated, async (req, res) => {
     try {
         const product = await getProductById(req.params.id);
         const allRoastType = await getAllRoastType();

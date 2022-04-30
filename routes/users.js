@@ -20,7 +20,7 @@ async function getUserById(userId) {
     return user;
 }
 
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
     try {
         let users = await User.collection().fetch();
         res.render('users/index', {
@@ -60,7 +60,8 @@ router.post('/register', async (req, res) => {
             });
             await user.save();
             req.flash("success_messages", "User signed up successfully!");
-            res.redirect('/users/login')
+            res.redirect('/');
+            // res.redirect('/users/login')
         },
         'error': (form) => {
             res.render('users/register', {
@@ -160,15 +161,15 @@ router.post('/:id/delete', async (req, res) => {
 
 
 
-router.get('/login', (req, res) => {
+router.get('/', (req, res) => {
     const loginForm = createLoginForm();
-    res.render('users/login', {
+    res.render('users/login.hbs', {
         'form': loginForm.toHTML(bootstrapField)
     })
 })
 
 
-router.post('/login', async (req, res) => {
+router.post('/', async (req, res) => {
     const loginForm = createLoginForm();
     loginForm.handle(req, {
         'success': async (form) => {
@@ -178,12 +179,13 @@ router.post('/login', async (req, res) => {
             let user = await User.where({
                 'email': form.data.email
             }).fetch({
-               require:false}
+                require: false
+            }
             );
 
             if (!user) {
                 req.flash("error_messages", "Sorry, the authentication details you provided does not work.")
-                res.redirect('/users/login');
+                res.redirect('/');
             } else {
                 // check if the password matches
                 if (user.get('password') === getHashedPassword(form.data.password)) {
@@ -197,10 +199,10 @@ router.post('/login', async (req, res) => {
                         email: user.get('email')
                     }
                     req.flash("success_messages", "Welcome back, " + user.get('first_name') + user.get('last_name'));
-                    res.redirect('/users/profile');
+                    res.redirect('/profile');
                 } else {
                     req.flash("error_messages", "Sorry, the authentication details you provided does not work.")
-                    res.redirect('/users/login')
+                    res.redirect('/')
                 }
             }
         }, 'error': (form) => {
@@ -217,7 +219,7 @@ router.get('/profile', async (req, res) => {
     const user = req.session.user;
     if (!user) {
         req.flash('error_messages', "Please login to see the page");
-        res.redirect('/users/login');
+        res.redirect('/');
     } else {
         let user = await User.where({
             'id': req.session.user.id
@@ -225,7 +227,7 @@ router.get('/profile', async (req, res) => {
             'required': true
         })
 
-        res.render('users/profile',{
+        res.render('users/profile', {
             'user': user.toJSON()
         })
     }
@@ -235,7 +237,7 @@ router.get('/profile', async (req, res) => {
 router.get('/logout', (req, res) => {
     req.session.user = null;
     req.flash('success_messages', "Goodbye");
-    res.redirect('/users/login');
+    res.redirect('/');
 })
 
 module.exports = router;

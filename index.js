@@ -79,9 +79,9 @@ const userRoutes = require('./routes/users');
 
 async function main() {
     // landing routes 
-    app.use('/', landingRoutes);
+    app.use('/landing', landingRoutes);
     app.use('/products', productsRoutes);
-    app.use('/users', userRoutes);
+    app.use('/', userRoutes);
 }
 
 main();

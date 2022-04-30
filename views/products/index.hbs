@@ -12,6 +12,7 @@
             <th>Roast Type</th>
             <th>certificate</th>
             <th>origin</th>
+            <th>Product Image</th>
         </tr>
 
     </thead>
@@ -47,10 +48,14 @@
                 {{/each}}
             </td>
             <td>
+                {{#if this.image_url}}
+                <img src="{{this.image_url}}" class="img-fluid" />
+                {{/if}}
+            </td>
+            <td>
                 <a href="/products/{{this.id}}/update" class="btn btn-primary btn-sm">Update</a>
                 <a href="/products/{{this.id}}/delete" class="btn btn-danger btn-sm">Delete</a>
             </td>
-
         </tr>
         {{/each}}
         <a href="/products/create" class="btn btn-primary btn-sm">Create</a>

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 //#1 import in the Product model
-const { Product, RoastType, Certificate, Origin} = require('../models')
+const { Product, RoastType, Certificate, Origin } = require('../models')
 
 //import in the Forms
 const { bootstrapField, createProductForm } = require('../forms');
@@ -71,7 +71,10 @@ router.get('/create', checkIfAuthenticated, async (req, res) => {
         //above instance will pass information to the Product Form
         const productForm = createProductForm(allRoastType, allCerts, allOrigin);
         res.render('products/create', {
-            'form': productForm.toHTML(bootstrapField)
+            'form': productForm.toHTML(bootstrapField),
+            cloudinaryName: process.env.CLOUDINARY_NAME,
+            cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+            cloudinaryPreset: process.env.CLOUDINARY_UPLOAD_PRESET
         })
     } catch (e) {
         res.status(500);
@@ -98,6 +101,7 @@ router.post('/create', checkIfAuthenticated, async (req, res) => {
                 product.set('qty', form.data.qty);
                 product.set('description', form.data.description);
                 product.set('roast_type_id', form.data.roast_type_id);
+                product.set('image_url', form.data.image_url);
                 await product.save();
 
                 let certs = form.data.certificates; //table name
@@ -109,7 +113,7 @@ router.post('/create', checkIfAuthenticated, async (req, res) => {
                     // add new tags to the M:n tags relationship
                     await product.certificates().attach(certs.split(',')); //don understand this part
                 }
-                if(ori){
+                if (ori) {
                     await product.origins().attach(ori.split(','));
                 }
                 req.flash("success_messages", `New Product ${product.get('product_name')} has been created`)
@@ -133,7 +137,7 @@ router.post('/create', checkIfAuthenticated, async (req, res) => {
 })
 
 //update product
-router.get('/:id/update', checkIfAuthenticated, async (req, res) => {
+router.get('/:id/update', async (req, res) => {
     try {
         //retrieve product
         const product = await getProductById(req.params.id);
@@ -148,6 +152,7 @@ router.get('/:id/update', checkIfAuthenticated, async (req, res) => {
         form.fields.qty.value = product.get('qty');
         form.fields.description.value = product.get('description');
         form.fields.roast_type_id.value = product.get('roast_type_id');
+        form.fields.image_url.value = product.get('image_url'); //for upload image
 
         let selectCerts = await product.related('certificates').pluck('id');
         form.fields.certificates.value = selectCerts;
@@ -157,7 +162,11 @@ router.get('/:id/update', checkIfAuthenticated, async (req, res) => {
 
         res.render('products/update', {
             'form': form.toHTML(bootstrapField),
-            'products': product.toJSON()
+            'products': product.toJSON(),
+            // 2 - send to the HBS file the cloudinary information
+            cloudinaryName: process.env.CLOUDINARY_NAME,
+            cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+            cloudinaryPreset: process.env.CLOUDINARY_UPLOAD_PRESET
         })
     } catch (e) {
         res.status(500);
@@ -169,7 +178,7 @@ router.get('/:id/update', checkIfAuthenticated, async (req, res) => {
 })
 
 
-router.post('/:id/update', checkIfAuthenticated, async (req, res) => {
+router.post('/:id/update', async (req, res) => {
     try {
         const product = await getProductById(req.params.id);
         const allRoastType = await getAllRoastType();
@@ -192,7 +201,7 @@ router.post('/:id/update', checkIfAuthenticated, async (req, res) => {
                 let toRemove = existingCert.filter(id => selectedCert.includes(id) === false);
                 let toRemoveOri = existingOri.filter(id => selectedOri.includes(id) === false);
 
-                await product.certificates().detach(toRemove); 
+                await product.certificates().detach(toRemove);
                 await product.origins().detach(toRemoveOri);
                 // detach will take in an array of ids
                 // those ids will be removed from the relationship
@@ -221,7 +230,7 @@ router.post('/:id/update', checkIfAuthenticated, async (req, res) => {
 })
 
 
-router.get('/:id/delete', async (req, res) => {
+router.get('/:id/delete', checkIfAuthenticated, async (req, res) => {
     //fetch the product that we want to delete
     try {
         const product = await getProductById(req.params.id);
@@ -238,7 +247,7 @@ router.get('/:id/delete', async (req, res) => {
     }
 })
 
-router.post('/:id/delete', async (req, res) => {
+router.post('/:id/delete', checkIfAuthenticated, async (req, res) => {
     try {
         const product = await getProductById(req.params.id);
         await product.destroy();

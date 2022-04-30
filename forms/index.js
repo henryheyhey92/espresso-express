@@ -83,6 +83,9 @@ const createProductForm = (roast_type, certificates, origins) => {
             'errorAfterField': true,
             'widget': widgets.multipleSelect(),
             'choices': origins
+        }),
+        'image_url':fields.string({
+            'widget': widgets.hidden()
         })
 
     })

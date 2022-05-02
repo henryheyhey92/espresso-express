@@ -30,7 +30,7 @@ app.use(
 // set up sessions
 app.use(session({
     store: new FileStore(),
-    secret: 'keyboard cat',  //this one will need to change to secret key
+    secret: process.env.SESSION_SECRET_KEY,  //this one will need to change to secret key
     resave: false,
     saveUninitialized: true
 }))

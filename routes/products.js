@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 //#1 import in the Product model
-const { Product, RoastType, Certificate, Origin } = require('../models')
+const { Product, RoastType, Certificate, Origin } = require('../models');
+const dataLayer = require('../dal/products');
 
 //import in the Forms
 const { bootstrapField, createProductForm, createSearchForm } = require('../forms');
@@ -10,49 +11,17 @@ const { checkIfAuthenticated } = require('../middlewares');
 const async = require("hbs/lib/async");
 // const async = require("hbs/lib/async");
 
-async function getProductById(productId) {
-    const product = await Product.where({
-        'id': productId
-    }).fetch({
-        'require': true,
-        'withRelated': ['certificates', 'roastType', 'origins']
-    })
-    return product;
-}
-
-async function getAllRoastType() {
-    const allRoastType = await RoastType.fetchAll().map(roastType => {
-        return [roastType.get('id'), roastType.get('name')]
-    });
-    return allRoastType;
-}
-
-async function getAllCerts() {
-    const allCerts = await Certificate.fetchAll().map(certificate => {
-        return [certificate.get('id'), certificate.get('name')]
-    });
-    return allCerts;
-}
-
-async function getAllOrigin() {
-    const allOrigin = await Origin.fetchAll().map(origin => {
-        return [origin.get('id'), origin.get('country_name')]
-    })
-    return allOrigin;
-}
-
-
 //retrieve roast_type table info with roastType, 
 //function in the model
 router.get('/', checkIfAuthenticated, async (req, res) => {
     // #2 - fetch all the products (ie, SELECT * from products)
     try {
-        const allRoastType = await getAllRoastType();
+        const allRoastType = await dataLayer.getAllRoastType();
         allRoastType.unshift(["", "All"]);
 
-        const allCerts = await getAllCerts();
+        const allCerts = await dataLayer.getAllCerts();
 
-        const allOrigin = await getAllOrigin();
+        const allOrigin = await dataLayer.getAllOrigin();
 
         let searchForm = createSearchForm(allRoastType, allCerts, allOrigin);
         let q = Product.collection();
@@ -146,9 +115,9 @@ router.get('/', checkIfAuthenticated, async (req, res) => {
 
 router.get('/create', checkIfAuthenticated, async (req, res) => {
     try {
-        const allRoastType = await getAllRoastType();
-        const allCerts = await getAllCerts();
-        const allOrigin = await getAllOrigin();
+        const allRoastType = await dataLayer.getAllRoastType();
+        const allCerts = await dataLayer.getAllCerts();
+        const allOrigin = await dataLayer.getAllOrigin();
         //above instance will pass information to the Product Form
         const productForm = createProductForm(allRoastType, allCerts, allOrigin);
         res.render('products/create', {
@@ -169,9 +138,9 @@ router.get('/create', checkIfAuthenticated, async (req, res) => {
 
 router.post('/create', checkIfAuthenticated, async (req, res) => {
     try {
-        const allRoastType = await getAllRoastType();
-        const allCerts = await getAllCerts();
-        const allOrigin = await getAllOrigin();
+        const allRoastType = await dataLayer.getAllRoastType();
+        const allCerts = await dataLayer.getAllCerts();
+        const allOrigin = await dataLayer.getAllOrigin();
         const productForm = createProductForm(allRoastType, allCerts, allOrigin);
 
         productForm.handle(req, {
@@ -221,10 +190,10 @@ router.post('/create', checkIfAuthenticated, async (req, res) => {
 router.get('/:id/update', async (req, res) => {
     try {
         //retrieve product
-        const product = await getProductById(req.params.id);
-        const allRoastType = await getAllRoastType();
-        const allCerts = await getAllCerts();
-        const allOrigin = await getAllOrigin();
+        const product = await dataLayer.getProductById(req.params.id);
+        const allRoastType = await dataLayer.getAllRoastType();
+        const allCerts = await dataLayer.getAllCerts();
+        const allOrigin = await dataLayer.getAllOrigin();
         //create the product form
         const form = createProductForm(allRoastType, allCerts, allOrigin);
 
@@ -261,8 +230,8 @@ router.get('/:id/update', async (req, res) => {
 
 router.post('/:id/update', async (req, res) => {
     try {
-        const product = await getProductById(req.params.id);
-        const allRoastType = await getAllRoastType();
+        const product = await dataLayer.getProductById(req.params.id);
+        const allRoastType = await dataLayer.getAllRoastType();
         const form = createProductForm(allRoastType);
         form.handle(req, {
             'success': async (form) => {
@@ -279,10 +248,10 @@ router.post('/:id/update', async (req, res) => {
                 let existingOri = await product.related('origins').pluck('id');
 
                 // remove all the tags that are not selected anymore
-                let toRemove = existingCert.filter(id => selectedCert.includes(id) === false);
+                let toRemoveCert = existingCert.filter(id => selectedCert.includes(id) === false);
                 let toRemoveOri = existingOri.filter(id => selectedOri.includes(id) === false);
 
-                await product.certificates().detach(toRemove);
+                await product.certificates().detach(toRemoveCert);
                 await product.origins().detach(toRemoveOri);
                 // detach will take in an array of ids
                 // those ids will be removed from the relationship
@@ -314,7 +283,7 @@ router.post('/:id/update', async (req, res) => {
 router.get('/:id/delete', checkIfAuthenticated, async (req, res) => {
     //fetch the product that we want to delete
     try {
-        const product = await getProductById(req.params.id);
+        const product = await dataLayer.getProductById(req.params.id);
 
         res.render('products/delete', {
             'products': product.toJSON()
@@ -330,7 +299,7 @@ router.get('/:id/delete', checkIfAuthenticated, async (req, res) => {
 
 router.post('/:id/delete', checkIfAuthenticated, async (req, res) => {
     try {
-        const product = await getProductById(req.params.id);
+        const product = await dataLayer.getProductById(req.params.id);
         await product.destroy();
         res.redirect('/products');
     } catch (e) {

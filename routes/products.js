@@ -5,7 +5,7 @@ const router = express.Router();
 const { Product, RoastType, Certificate, Origin } = require('../models')
 
 //import in the Forms
-const { bootstrapField, createProductForm } = require('../forms');
+const { bootstrapField, createProductForm, createSearchForm } = require('../forms');
 const { checkIfAuthenticated } = require('../middlewares');
 const async = require("hbs/lib/async");
 // const async = require("hbs/lib/async");
@@ -47,12 +47,93 @@ async function getAllOrigin() {
 router.get('/', checkIfAuthenticated, async (req, res) => {
     // #2 - fetch all the products (ie, SELECT * from products)
     try {
-        let products = await Product.collection().fetch({
-            withRelated: ['certificates', 'roastType', 'origins']
-        });
-        res.render('products/index', {
-            'products': products.toJSON() //#3 convert collection to JSON
+        const allRoastType = await getAllRoastType();
+        allRoastType.unshift(["", "All"]);
+
+        const allCerts = await getAllCerts();
+
+        const allOrigin = await getAllOrigin();
+
+        let searchForm = createSearchForm(allRoastType, allCerts, allOrigin);
+        let q = Product.collection();
+
+        searchForm.handle(req, {
+            'empty': async (form) => {
+                let products = await q.fetch({
+                    withRelated: ['certificates', 'roastType', 'origins']
+                })
+                res.render('products/index', {
+                    'products': products.toJSON(),
+                    'form': form.toHTML(bootstrapField)
+                })
+
+            },
+            'error': async (form) => {
+                let products = await q.fetch({
+                    withRelated: ['certificates', 'roastType', 'origins']
+                })
+                res.render('products/index', {
+                    'products': products.toJSON(),
+                    'form': form.toHTML(bootstrapField)
+                })
+            },
+            'success': async (form) => {
+                if (form.data.product_name) {
+                    q = q.where('product_name', 'like', '%' + req.query.product_name + '%')
+                }
+
+                // if (form.data.roast_type_id && form.data.roast_type_id != "0") {
+                //     q = q.query('join', 'roast_type', 'roast_type_id', 'roast_type.id')
+                //         .where('roast_type.name', 'like', '%' + req.query.roast_type_id + '%')
+                // }
+                if (form.data.roast_type_id) {
+                    q.where('roast_type_id', '=', form.data.roast_type_id)
+                }
+                
+                if (form.data.min_price) {
+                    q = q.where('price', '>=', form.data.min_price)
+                }
+
+                if (form.data.max_price) {
+                    q = q.where('price', '<=', form.data.max_price);
+                }
+
+                if (form.data.certificates) {
+                    // joining in bookshelf
+                    q.query('join', 'certificates_products', 'products.id', 'product_id')
+                        .where('certificate_id', 'in', form.data.certificates.split(','))
+                    // is eqv:
+                    // select * from products JOIN products_tags ON products.id 
+                }
+
+                if (form.data.origins) {
+                    // joining in bookshelf
+                    q.query('join', 'origins_products', 'products.id', 'product_id')
+                        .where('origin_id', 'in', form.data.origins.split(','))
+                    // is eqv:
+                    // select * from products JOIN products_tags ON products.id 
+                }
+
+
+                let products = await q.fetch({
+                    withRelated: ['certificates', 'roastType', 'origins']
+                })
+                res.render('products/index', {
+                    'products': products.toJSON(),
+                    'form': form.toHTML(bootstrapField)
+                })
+
+            }
         })
+
+
+
+        // let products = await Product.collection().fetch({
+        //     withRelated: ['certificates', 'roastType', 'origins']
+        // });
+        // res.render('products/index', {
+        //     'products': products.toJSON() //#3 convert collection to JSON
+        // })
     } catch (e) {
         res.status(500);
         res.json({

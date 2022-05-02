@@ -46,7 +46,7 @@ const createProductForm = (roast_type, certificates, origins) => {
             'validators': [validators.maxlength(100)]
         }),
         // <input type="text" name="cost"/>
-        'price': fields.number({
+        'price': fields.string({
             'required': true,
             'errorAfterField': true,
             'validators': [validators.integer(), validators.min(0)]
@@ -163,9 +163,53 @@ const createLoginForm = () => {
 
 }
 
+const createSearchForm = (roast_type, certificates, origins) => {
+    return forms.create({
+        // <input type="text" name="name"/>
+        'product_name': fields.string({
+            'required': false,
+            'errorAfterField': true,
+            'validators': [validators.maxlength(100)]
+        }),
+        // <input type="text" name="cost"/>
+        'min_price': fields.string({
+            'required': false,
+            'errorAfterField': true,
+            'validators': [validators.integer(), validators.min(0)]
+        }),
+        'max_price': fields.string({
+            'required': false,
+            'errorAfterField': true,
+            'validators': [validators.integer(), validators.min(0)]
+        }),
+        'roast_type_id': fields.string({
+            'label': 'Roast Type',
+            'required': false,
+            'errorAfterField': true,
+            'widget': widgets.select(), // use the dropdowns elect
+            'choices': roast_type
+        }),
+        'certificates': fields.string({
+            'label': 'Certificate',
+            'required': false,
+            'errorAfterField': true,
+            'widget': widgets.multipleSelect(),
+            'choices': certificates
+        }),
+        'origins': fields.string({
+            'label': 'Origin',
+            'required': false,
+            'errorAfterField': true,
+            'widget': widgets.multipleSelect(),
+            'choices': origins
+        })
+    })
+}
+
 module.exports = {
     bootstrapField,
     createProductForm,
     createUserForm,
-    createLoginForm
+    createLoginForm,
+    createSearchForm
 }

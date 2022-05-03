@@ -97,8 +97,8 @@ const shoppingCartRoutes = require('./routes/shoppingCart');
 const checkoutRoutes = require('./routes/checkout');
 const api = {
     products: require('./routes/api/products'),
-    shoppingCart: require('./routes/api/shoppingCart')
-    //here need to add shopping cart and checkout
+    shoppingCart: require('./routes/api/shoppingCart'),
+    checkout: require('./routes/api/checkout')
 }
 
 const { checkIfAuthenticated } = require('./middlewares');
@@ -114,6 +114,7 @@ async function main() {
     app.use('/checkout', checkoutRoutes);
     app.use('/api/products', express.json(), api.products);
     app.use('/api/shoppingCart', express.json(), api.shoppingCart);
+    app.use('/api/checkout', express.json(), api.checkout);
     //here need to write route for shopping cart and checkout
 }
 

@@ -1,5 +1,9 @@
 const { Product, RoastType, Certificate, Origin } = require('../models')
 
+const getAllProducts = async () => {
+    return await Product.fetchAll();
+}
+
 
 async function getProductById(productId) {
     const product = await Product.where({
@@ -34,5 +38,5 @@ async function getAllOrigin() {
 
 
 module.exports = {
-    getProductById, getAllCerts, getAllRoastType, getAllOrigin
+    getProductById, getAllCerts, getAllRoastType, getAllOrigin, getAllProducts
 }

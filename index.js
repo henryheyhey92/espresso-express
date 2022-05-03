@@ -6,7 +6,6 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const FileStore = require('session-file-store')(session);
 const csrf = require('csurf');
-const { checkIfAuthenticated } = require('./middlewares');
 
 //create an instance of express app
 let app = express();
@@ -51,7 +50,20 @@ app.use(function(req,res,next){
     next();
 });
 
-app.use(csrf());
+// app.use(csrf());
+const csurfInstance = csrf();  // creating a prox of the middleware
+app.use(function(req,res,next){
+    // if it is webhook url, then call next() immediately
+    // or if the url is for the api, then also exclude from csrf
+    if (req.url === '/checkout/process_payment' || 
+        req.url.slice(0,5)=='/api/') {
+        next();
+    } else {
+        csurfInstance(req,res,next);
+    }
+
+
+})
 
 // middle to handle csrf errors
 // if a middleware function takes 4 arguments
@@ -69,7 +81,10 @@ app.use(function (err, req, res, next) {
 app.use(function(req,res,next){
     //the req.csrfToken generate a new token 
     // and save its to the current session
-    res.locals.csrfToken = req.csrfToken();
+    if (req.csrfToken) {
+        res.locals.csrfToken = req.csrfToken();
+    }
+
     next();
 })
 
@@ -80,6 +95,14 @@ const userRoutes = require('./routes/users');
 const cloudinaryRoutes = require('./routes/cloudinary.js');
 const shoppingCartRoutes = require('./routes/shoppingCart');
 const checkoutRoutes = require('./routes/checkout');
+const api = {
+    products: require('./routes/api/products'),
+    shoppingCart: require('./routes/api/shoppingCart')
+    //here need to add shopping cart and checkout
+}
+
+const { checkIfAuthenticated } = require('./middlewares');
+
 
 async function main() {
     // landing routes 
@@ -89,6 +112,9 @@ async function main() {
     app.use('/cloudinary', cloudinaryRoutes);
     app.use('/cart', checkIfAuthenticated, shoppingCartRoutes);
     app.use('/checkout', checkoutRoutes);
+    app.use('/api/products', express.json(), api.products);
+    app.use('/api/shoppingCart', express.json(), api.shoppingCart);
+    //here need to write route for shopping cart and checkout
 }
 
 main();

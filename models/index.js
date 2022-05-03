@@ -6,10 +6,10 @@ const bookshelf = require('../bookshelf')
 const Product = bookshelf.model('Product', {
     tableName: 'products',
     roastType(){
-        return this.belongsTo('RoastType');
+        return this.belongsTo('RoastType');    // one product has 1 roast type
     },
     certificates(){
-        return this.belongsToMany('Certificate');
+        return this.belongsToMany('Certificate'); // 1 product havae many cert
     },
     origins(){
         return this.belongsToMany('Origin');
@@ -19,14 +19,14 @@ const Product = bookshelf.model('Product', {
 const RoastType = bookshelf.model('RoastType', {
     tableName: 'roast_type',
     products(){
-        return this.hasMany('Product');
+        return this.hasMany('Product'); // 1 roast type can have many product
     }
 })
 
 const Certificate = bookshelf.model('Certificate',{
     tableName: 'certificates',
     products() {
-        return this.belongsToMany('Product')
+        return this.belongsToMany('Product') // 1 cert have many product 
     }
 })
 
@@ -41,4 +41,11 @@ const Origin = bookshelf.model('Origin', {
     }
 })
 
-module.exports = { Product, RoastType, Certificate, User, Origin};
+const CartItem = bookshelf.model('CartItem', {
+    tableName: 'cart_items',
+    product() {
+         return this.belongsTo('Product')
+    }
+})
+
+module.exports = { Product, RoastType, Certificate, User, Origin, CartItem};

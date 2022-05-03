@@ -6,6 +6,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const FileStore = require('session-file-store')(session);
 const csrf = require('csurf');
+const { checkIfAuthenticated } = require('./middlewares');
 
 //create an instance of express app
 let app = express();
@@ -77,6 +78,7 @@ const landingRoutes = require('./routes/landing');
 const productsRoutes = require('./routes/products');
 const userRoutes = require('./routes/users');
 const cloudinaryRoutes = require('./routes/cloudinary.js');
+const shoppingCartRoutes = require('./routes/shoppingCart');
 
 async function main() {
     // landing routes 
@@ -84,6 +86,7 @@ async function main() {
     app.use('/products', productsRoutes);
     app.use('/', userRoutes);
     app.use('/cloudinary', cloudinaryRoutes);
+    app.use('/cart', checkIfAuthenticated, shoppingCartRoutes);
 }
 
 main();

@@ -39,13 +39,19 @@ async function removeFromCart(userId, productId) {
     return false;
 }
 
+async function removeAllFromCart(userId){
+    let cartItem = await getCart(userId);
+    if(cartItem){
+        await cartItem.destroy();
+        return true;
+    }
+    return false;
+}
+
 async function updateQuantity(userId, productId, newQuantity) {
-    console.log("User id and product id");
-    console.log(userId);
-    console.log(productId);
+    
     let cartItem = await getCartItemByUserAndProduct(userId, productId);
-    console.log("dal cart_item");
-    console.log(cartItem);
+   
     if (cartItem) {
         cartItem.set('quantity', newQuantity);
         cartItem.save();
@@ -55,4 +61,4 @@ async function updateQuantity(userId, productId, newQuantity) {
 }
 
 
-module.exports = {getCart, getCartItemByUserAndProduct, createCartItem, removeFromCart, updateQuantity}
+module.exports = {getCart, getCartItemByUserAndProduct, createCartItem, removeFromCart, updateQuantity, removeAllFromCart}

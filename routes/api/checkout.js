@@ -65,4 +65,64 @@ router.get('/:user_id', async (req, res) => {
 
 })
 
+//When payment is successful
+router.get('/success', async function (req, res) {
+    try {
+        let {user_id} = req.body;
+        const cart = new CartServices(user_id);
+        let items = await cart.getCart();
+
+        let result;
+        for (let item of items) {
+            result = await cart.remove(item.get('product_id'))
+        }
+
+        if (result) {
+            res.json({
+                'message': "success"
+            })
+        } else {
+            res.status(405);
+            res.json({
+                'message': "method not allow"
+            })
+        }
+
+    } catch (e) {
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+
+})
+
+
+//process payment api
+//what is the payload 
+router.post('/process_payment', express.raw({
+    'type':'application/json'
+}), async (req, res) => {
+    let payload = req.body;
+    let endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
+    let sigHeader = req.headers["stripe-signature"];
+    let event;
+    try {
+        event = Stripe.webhooks.constructEvent(payload, sigHeader, endpointSecret);
+
+    } catch (e) {
+        res.send({
+            'error': e.message
+        })
+        console.log(e.message)
+    }
+    if (event.type == 'checkout.session.completed') {
+        let stripeSession = event.data.object;
+        console.log(stripeSession);
+        // process stripeSession
+    }
+    res.send({ received: true });
+})
+
 module.exports = router;

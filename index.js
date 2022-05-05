@@ -114,7 +114,7 @@ async function main() {
     app.use('/checkout', checkoutRoutes);
     app.use('/api/products', express.json(), api.products);
     app.use('/api/shoppingCart', express.json(), api.shoppingCart);
-    app.use('/api/checkout', express.json(), api.checkout);
+    app.use('/api/checkout', api.checkout);
     //here need to write route for shopping cart and checkout
 }
 

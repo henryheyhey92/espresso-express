@@ -2,14 +2,16 @@ const express = require('express');
 const router = express.Router();
 const CartServices = require('../../services/cart_services');
 const Stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
+const {Order, Product, RoastType, Certificate, Origin} = require('../../models');
 
 
 //retrieve only the session id and publishable key
-router.get('/:user_id', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
 
         //1. Get all the cart items
-        const cart = new CartServices(req.params.user_id);
+        //hardcode the user id number 
+        const cart = new CartServices(req.session.user.id);
         let items = await cart.getCart();
 
         //2. Generate the line items
@@ -50,7 +52,12 @@ router.get('/:user_id', async (req, res) => {
         // 4. register the session
         let stripeSession = await Stripe.checkout.sessions.create(payment)
         res.status(200);
-        res.json({
+        // res.json({
+        //     'sessionId': stripeSession.id, // 4. Get the ID of the session
+        //     'publishableKey': process.env.STRIPE_PUBLISHABLE_KEY
+        // })
+        //for testing purpose
+        res.render('checkout/checkout', {
             'sessionId': stripeSession.id, // 4. Get the ID of the session
             'publishableKey': process.env.STRIPE_PUBLISHABLE_KEY
         })
@@ -58,7 +65,7 @@ router.get('/:user_id', async (req, res) => {
     } catch (e) {
         res.status(500);
         res.json({
-            'message': "Internal server error. Please contact administrator"
+            'message': "Internal server error. Please contact administrator (get api)"
         })
         console.log(e);
     }
@@ -68,8 +75,10 @@ router.get('/:user_id', async (req, res) => {
 //When payment is successful
 router.get('/success', async function (req, res) {
     try {
-        let {user_id} = req.body;
-        const cart = new CartServices(user_id);
+        
+        //let {user_id} = req.body;
+        //hardcode for now 
+        const cart = new CartServices(req.session.user.id);
         let items = await cart.getCart();
 
         let result;
@@ -78,9 +87,7 @@ router.get('/success', async function (req, res) {
         }
 
         if (result) {
-            res.json({
-                'message': "success"
-            })
+            res.render('checkout/success');
         } else {
             res.status(405);
             res.json({
@@ -91,7 +98,7 @@ router.get('/success', async function (req, res) {
     } catch (e) {
         res.status(500);
         res.json({
-            'message': "Internal server error. Please contact administrator"
+            'message': "Internal server error. Please contact administrator (success api)"
         })
         console.log(e);
     }
@@ -118,10 +125,23 @@ router.post('/process_payment', express.raw({
         console.log(e.message)
     }
     if (event.type == 'checkout.session.completed') {
+
+        let date = new Date();
         let stripeSession = event.data.object;
         console.log(stripeSession);
+        // const order = new Order();
+        // order.set('product_id', 10);
+        // order.set('user_id', 1);
+        // order.set('order_date', date.toString());
+        // order.set('status', "paid");
+        // order.set('shipping_address', "Bukit Panjang Ring Road");
+        // order.set('quantity', 4);
+        // order.set('price', 9000);
+        // await order.save();
+
         // process stripeSession
     }
+   
     res.send({ received: true });
 })
 

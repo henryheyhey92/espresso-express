@@ -13,6 +13,9 @@ const Product = bookshelf.model('Product', {
     },
     origins(){
         return this.belongsToMany('Origin');
+    },
+    orders(){
+        return this.hasMany('Order');
     }
 });
 
@@ -31,7 +34,10 @@ const Certificate = bookshelf.model('Certificate',{
 })
 
 const User = bookshelf.model('User', {
-    tableName: 'users'
+    tableName: 'users',
+    orders(){
+        return this.hasMany('Order');
+    }
 })
 
 const Origin = bookshelf.model('Origin', {
@@ -48,4 +54,15 @@ const CartItem = bookshelf.model('CartItem', {
     }
 })
 
-module.exports = { Product, RoastType, Certificate, User, Origin, CartItem};
+const Order = bookshelf.model('Order', {
+    tableName: 'order',
+    product(){
+        return this.belongsTo('Product')
+    },
+    user(){
+        return this.belongsTo('User')
+    }
+
+})
+
+module.exports = { Product, RoastType, Certificate, User, Origin, CartItem, Order};

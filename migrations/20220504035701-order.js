@@ -15,7 +15,7 @@ exports.setup = function(options, seedLink) {
 };
 
 exports.up = function(db) {
-  return db.createTable('order', {
+  return db.createTable('orders', {
     id: { type: 'int', primaryKey: true, autoIncrement: true , unsigned:true},
     product_id: {
         type: 'int',
@@ -48,13 +48,13 @@ exports.up = function(db) {
     order_date: { type: 'string', length: 100, notNull: true },
     status: { type: 'string', length: 100, notNull: true },
     shipping_address: { type: 'string', length: 1000, notNull: true },
-    quantity: { type: 'int', unsigned: true, notNull: true },
-    price: { type: 'int', unsigned: true, notNull: true }
+    quantity: { type: 'int', unsigned: true, notNull: true }
+    // price: { type: 'int', unsigned: true, notNull: true }
 });
 };
 
 exports.down = function(db) {
-  return db.dropTable('order');
+  return db.dropTable('orders');
 };
 
 exports._meta = {

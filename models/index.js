@@ -55,7 +55,7 @@ const CartItem = bookshelf.model('CartItem', {
 })
 
 const Order = bookshelf.model('Order', {
-    tableName: 'order',
+    tableName: 'orders',
     product(){
         return this.belongsTo('Product')
     },

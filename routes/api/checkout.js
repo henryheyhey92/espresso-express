@@ -1,17 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const CartServices = require('../../services/cart_services');
+const UserServices = require('../../services/user_services');
 const Stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 const {Order, Product, RoastType, Certificate, Origin} = require('../../models');
+const dataLayer = require('../../dal/products');
+
 
 
 //retrieve only the session id and publishable key
 router.get('/', async (req, res) => {
     try {
-
+        console.log(1)
         //1. Get all the cart items
         //hardcode the user id number 
-        const cart = new CartServices(req.session.user.id);
+        const cart = new CartServices(1);
         let items = await cart.getCart();
 
         //2. Generate the line items
@@ -39,6 +42,7 @@ router.get('/', async (req, res) => {
 
         // 3. Send the line items to Stripe and get a stripe payment id
         let metaData = JSON.stringify(meta);
+        console.log(2)
         const payment = {
             payment_method_types: ['card'],    //eg card, crypto, cheque 
             line_items: lineItems,
@@ -51,6 +55,7 @@ router.get('/', async (req, res) => {
 
         // 4. register the session
         let stripeSession = await Stripe.checkout.sessions.create(payment)
+        console.log(3)
         res.status(200);
         // res.json({
         //     'sessionId': stripeSession.id, // 4. Get the ID of the session
@@ -78,7 +83,8 @@ router.get('/success', async function (req, res) {
         
         //let {user_id} = req.body;
         //hardcode for now 
-        const cart = new CartServices(req.session.user.id);
+        console.log(4)
+        const cart = new CartServices(1);
         let items = await cart.getCart();
 
         let result;
@@ -111,11 +117,14 @@ router.get('/success', async function (req, res) {
 router.post('/process_payment', express.raw({
     'type':'application/json'
 }), async (req, res) => {
+    console.log("hello 5")
     let payload = req.body;
     let endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
     let sigHeader = req.headers["stripe-signature"];
     let event;
     try {
+        console.log("hello2")
+
         event = Stripe.webhooks.constructEvent(payload, sigHeader, endpointSecret);
 
     } catch (e) {
@@ -129,14 +138,25 @@ router.post('/process_payment', express.raw({
         let date = new Date();
         let stripeSession = event.data.object;
         console.log(stripeSession);
+        
+        //get product id
+        let orderedProducts = stripeSession.metadata;
+        //get total cost
+        let totalCost = stripeSession.amount_total;
+
+        //get user address
+        let user = new UserServices();
+        let result = user.getUser(req.session.user.id);
+        console.log(result);
+        // let userAddress = 
+        
         // const order = new Order();
         // order.set('product_id', 10);
-        // order.set('user_id', 1);
+        // order.set('user_id', req.session.user.id);
         // order.set('order_date', date.toString());
         // order.set('status', "paid");
         // order.set('shipping_address', "Bukit Panjang Ring Road");
         // order.set('quantity', 4);
-        // order.set('price', 9000);
         // await order.save();
 
         // process stripeSession
@@ -144,5 +164,6 @@ router.post('/process_payment', express.raw({
    
     res.send({ received: true });
 })
+
 
 module.exports = router;

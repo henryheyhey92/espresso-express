@@ -81,9 +81,9 @@ router.get('/', async (req, res) => {
 //When payment is successful
 router.get('/success', async function (req, res) {
     try {
-        
-        //let {user_id} = req.body;
-        //hardcode for now 
+        // res.render('checkout/success.hbs');
+        let {user_id} = req.body;
+        // hardcode for now 
         console.log(4)
         const cart = new CartServices(req.session.user.id);
         let items = await cart.getCart();
@@ -94,7 +94,7 @@ router.get('/success', async function (req, res) {
         }
 
         if (result) {
-            res.render('checkout/success');
+            res.render('checkout/success.hbs');
         } else {
             res.status(405);
             res.json({
@@ -110,6 +110,10 @@ router.get('/success', async function (req, res) {
         console.log(e);
     }
 
+})
+
+router.get('/cancelled', function (req, res) {
+    res.render('checkout/cancelled')
 })
 
 

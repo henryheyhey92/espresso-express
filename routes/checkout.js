@@ -57,6 +57,7 @@ router.get('/', async (req, res) => {
 router.get('/success', async function (req, res) {
     try {
         console.log("the session user id");
+        // res.render('checkout/success')
         console.log(req.session.user.id);
         const cart = new CartServices(req.session.user.id);
 

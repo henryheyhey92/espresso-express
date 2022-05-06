@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const CartServices = require('../../services/cart_services');
 const UserServices = require('../../services/user_services');
-const Stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
+const Stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const {Order, Product, RoastType, Certificate, Origin} = require('../../models');
 const dataLayer = require('../../dal/products');
+const bodyParser = require('body-parser');
 
 
 
@@ -14,7 +15,7 @@ router.get('/', async (req, res) => {
         console.log(1)
         //1. Get all the cart items
         //hardcode the user id number 
-        const cart = new CartServices(1);
+        const cart = new CartServices(req.session.user.id);
         let items = await cart.getCart();
 
         //2. Generate the line items
@@ -84,7 +85,7 @@ router.get('/success', async function (req, res) {
         //let {user_id} = req.body;
         //hardcode for now 
         console.log(4)
-        const cart = new CartServices(1);
+        const cart = new CartServices(req.session.user.id);
         let items = await cart.getCart();
 
         let result;
@@ -114,17 +115,15 @@ router.get('/success', async function (req, res) {
 
 //process payment api
 //what is the payload 
-router.post('/process_payment', express.raw({
+router.post('/process_payment',  express.raw({
     'type':'application/json'
 }), async (req, res) => {
-    console.log("hello 5")
+ 
     let payload = req.body;
     let endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
     let sigHeader = req.headers["stripe-signature"];
     let event;
     try {
-        console.log("hello2")
-
         event = Stripe.webhooks.constructEvent(payload, sigHeader, endpointSecret);
 
     } catch (e) {
@@ -133,6 +132,7 @@ router.post('/process_payment', express.raw({
         })
         console.log(e.message)
     }
+    console.log(event);
     if (event.type == 'checkout.session.completed') {
 
         let date = new Date();
@@ -140,14 +140,14 @@ router.post('/process_payment', express.raw({
         console.log(stripeSession);
         
         //get product id
-        let orderedProducts = stripeSession.metadata;
+        // let orderedProducts = stripeSession.metadata;
         //get total cost
-        let totalCost = stripeSession.amount_total;
+        // let totalCost = stripeSession.amount_total;
 
         //get user address
-        let user = new UserServices();
-        let result = user.getUser(req.session.user.id);
-        console.log(result);
+        // let user = new UserServices();
+        // let result = user.getUser(req.session.user.id);
+        // console.log(result);
         // let userAddress = 
         
         // const order = new Order();

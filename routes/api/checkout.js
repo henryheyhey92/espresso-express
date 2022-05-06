@@ -3,10 +3,12 @@ const router = express.Router();
 const CartServices = require('../../services/cart_services');
 const UserServices = require('../../services/user_services');
 const Stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const {Order, Product, RoastType, Certificate, Origin} = require('../../models');
-const dataLayer = require('../../dal/products');
-const bodyParser = require('body-parser');
+const { Order, Product, RoastType, Certificate, Origin } = require('../../models');
+const productDataLayer = require('../../dal/products');
+const userDataLayer = require('../../dal/users');
 
+const bodyParser = require('body-parser');
+let stripeData = null;
 
 
 //retrieve only the session id and publishable key
@@ -81,10 +83,9 @@ router.get('/', async (req, res) => {
 //When payment is successful
 router.get('/success', async function (req, res) {
     try {
-        // res.render('checkout/success.hbs');
-        let {user_id} = req.body;
-        // hardcode for now 
-        console.log(4)
+        let date = new Date();
+        let orderedProducts = [];
+
         const cart = new CartServices(req.session.user.id);
         let items = await cart.getCart();
 
@@ -92,6 +93,37 @@ router.get('/success', async function (req, res) {
         for (let item of items) {
             result = await cart.remove(item.get('product_id'))
         }
+
+        //saving details to order table
+        
+        //get user address
+        let user = new UserServices();
+        let userAddress = null;
+        let userData = await user.getUser(req.session.user.id)
+        userAddress = userData.attributes.address
+
+        //get product id
+        if (stripeData) {
+           
+            orderedProducts = JSON.parse(stripeData.metadata.orders);
+            for(let element of orderedProducts){
+                console.log(element)
+                const order = new Order();
+                order.set('product_id', element.product_id);
+                order.set('user_id', req.session.user.id);
+                order.set('order_date', date.toString());
+                order.set('status', stripeData.status);
+                order.set('shipping_address', userAddress);
+                order.set('quantity', element.quantity);
+                await order.save();
+            }
+        }
+
+       
+
+        //Need to clear the stripe data
+        stripeData = null;
+        
 
         if (result) {
             res.render('checkout/success.hbs');
@@ -119,10 +151,10 @@ router.get('/cancelled', function (req, res) {
 
 //process payment api
 //what is the payload 
-router.post('/process_payment',  express.raw({
-    'type':'application/json'
+router.post('/process_payment', express.raw({
+    'type': 'application/json'
 }), async (req, res) => {
- 
+    //cannort use req.session.user.id from here 
     let payload = req.body;
     let endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
     let sigHeader = req.headers["stripe-signature"];
@@ -139,33 +171,13 @@ router.post('/process_payment',  express.raw({
     console.log(event);
     if (event.type == 'checkout.session.completed') {
 
-        let date = new Date();
         let stripeSession = event.data.object;
         console.log(stripeSession);
+        stripeData = stripeSession;
         
-        //get product id
-        // let orderedProducts = stripeSession.metadata;
-        //get total cost
-        // let totalCost = stripeSession.amount_total;
-
-        //get user address
-        // let user = new UserServices();
-        // let result = user.getUser(req.session.user.id);
-        // console.log(result);
-        // let userAddress = 
-        
-        // const order = new Order();
-        // order.set('product_id', 10);
-        // order.set('user_id', req.session.user.id);
-        // order.set('order_date', date.toString());
-        // order.set('status', "paid");
-        // order.set('shipping_address', "Bukit Panjang Ring Road");
-        // order.set('quantity', 4);
-        // await order.save();
-
         // process stripeSession
     }
-   
+
     res.send({ received: true });
 })
 

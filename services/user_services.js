@@ -8,6 +8,10 @@ class UserServices {
     async getUser(user_id){
         return await userDataLayer.getUserById(user_id);
     }
+
+    async getUserByEmail(user_email){
+        return await userDataLayer.getUserByEmail(user_email);
+    }
 }
 
 module.exports = UserServices;

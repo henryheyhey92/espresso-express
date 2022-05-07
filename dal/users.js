@@ -14,6 +14,15 @@ async function getUserById(userId){
     return user
 }
 
+async function getUserByEmail(user_email){
+    const user = await User.where({
+        'email': user_email
+    }).fetch({
+        require: false
+    })
+    return user
+}
+
 module.exports = {
-    getAllUsers, getUserById
+    getAllUsers, getUserById, getUserByEmail
 }

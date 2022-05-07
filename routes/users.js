@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const crypto = require('crypto');
+const UserServices = require('../services/user_services');
 
 const getHashedPassword = (password) => {
     const sha256 = crypto.createHash('sha256');
@@ -176,12 +177,17 @@ router.post('/', async (req, res) => {
             // process the login
 
             // ...find the user by email and password
-            let user = await User.where({
-                'email': form.data.email
-            }).fetch({
-                require: false
-            }
-            );
+            console.log("Hello hahahaha")
+            let findUser = new UserServices();
+            let user = await findUser.getUserByEmail(form.data.email);
+            console.log(user);
+            // let user = await User.where({
+            //     'email': form.data.email
+            // }).fetch({
+            //     require: false
+            // }
+            // );
+            console.log(user);
 
             if (!user) {
                 req.flash("error_messages", "Sorry, the authentication details you provided does not work.")

@@ -23,6 +23,12 @@ async function getUserByEmail(user_email){
     return user
 }
 
+async function getAllUser(){
+    const user = await User.collection().fetch();
+    return user;
+}
+
+
 module.exports = {
-    getAllUsers, getUserById, getUserByEmail
+    getAllUsers, getUserById, getUserByEmail, getAllUser
 }

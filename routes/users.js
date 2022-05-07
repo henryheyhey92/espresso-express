@@ -23,7 +23,8 @@ async function getUserById(userId) {
 
 router.get('/all', async (req, res) => {
     try {
-        let users = await User.collection().fetch();
+        let allUser = new UserServices();
+        let users = await allUser.getAllUser();
         res.render('users/index', {
             'users': users.toJSON()
         })
@@ -74,7 +75,11 @@ router.post('/register', async (req, res) => {
 
 router.get('/:id/update', async (req, res) => {
     try {
+
         const user = await getUserById(req.params.id);
+        console.log(user)
+        // const updateUser = new UserServices();
+        // const user = await updateUser.getUserById(req.params.id); 
 
         const form = createUserForm();
 
@@ -110,9 +115,17 @@ router.post('/:id/update', async (req, res) => {
 
         form.handle(req, {
             'success': async (form) => {
-                user.set(form.data);
+                user.set('first_name', form.data.first_name),
+                user.set('last_name', form.data.last_name),
+                user.set('address', form.data.address),
+                user.set('country', form.data.country),
+                user.set('email', form.data.email),
+                user.set('phone', form.data.phone),
+                user.set('password', getHashedPassword(form.data.password)),
+                user.set('confirm_password', form.data.confirm_password),
+                user.set('user_type', form.data.user_type)
                 user.save();
-                res.redirect('/users');
+                res.redirect('/all');
             },
             'error': async (form) => {
                 res.render('users/update', {
@@ -180,13 +193,7 @@ router.post('/', async (req, res) => {
             console.log("Hello hahahaha")
             let findUser = new UserServices();
             let user = await findUser.getUserByEmail(form.data.email);
-            console.log(user);
-            // let user = await User.where({
-            //     'email': form.data.email
-            // }).fetch({
-            //     require: false
-            // }
-            // );
+           
             console.log(user);
 
             if (!user) {

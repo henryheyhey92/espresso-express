@@ -7,6 +7,18 @@ const checkIfAuthenticated = (req, res, next) => {
     }
 }
 
+//check for shop owner
+//when user_type equal A
+
+//check for manager
+//when user_type equals M
+
+//check for user
+//when user_type equal U
+// const userAuthentication = (req, res, nex) => {
+//     if(req.session.user.user_type)
+// }
+
 module.exports = {
     checkIfAuthenticated
 }

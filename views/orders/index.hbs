@@ -1,0 +1,45 @@
+{{#extends 'base'}}
+{{#block 'content'}}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Product_id</th>
+            <th>User_id</th>
+            <th>Order_date</th>
+            <th>Status</th>
+            <th>Shipping Address</th>
+            <th>Quantity</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each orders}}
+            <tr>
+                <td>
+                    {{this.id}}
+                </td>
+                <td>
+                    {{this.product_id}}
+                </td>
+                <td>
+                    {{this.user_id}}
+                </td>
+                <td class="overflow-auto" style="width: 300px;">
+                    {{this.order_date}}
+                </td>
+                <td>
+                    {{this.status}}
+                </td>
+                <td>
+                    {{this.shipping_address}}
+                </td>
+                <td>
+                    {{this.quantity}}
+                </td>
+            </tr>
+        {{/each}}
+    </tbody>
+
+</table>
+{{/block}}
+{{/extends}}

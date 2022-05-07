@@ -209,7 +209,8 @@ router.post('/', async (req, res) => {
                         id: user.get('id'),
                         first_name: user.get('first_name'),
                         last_name: user.get('last_name'),
-                        email: user.get('email')
+                        email: user.get('email'),
+                        user_type: user.get('user_type')
                     }
                     req.flash("success_messages", "Welcome back, " + user.get('first_name') + user.get('last_name'));
                     res.redirect('/profile');

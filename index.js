@@ -95,6 +95,7 @@ const userRoutes = require('./routes/users');
 const cloudinaryRoutes = require('./routes/cloudinary.js');
 const shoppingCartRoutes = require('./routes/shoppingCart');
 const checkoutRoutes = require('./routes/checkout');
+const orderRoutes = require('./routes/orders')
 const api = {
     products: require('./routes/api/products'),
     shoppingCart: require('./routes/api/shoppingCart'),
@@ -115,6 +116,7 @@ async function main() {
     app.use('/api/products', express.json(), api.products);
     app.use('/api/shoppingCart', express.json(), api.shoppingCart);
     app.use('/api/checkout', api.checkout);
+    app.use('/orders', checkIfAuthenticated, orderRoutes);
     //here need to write route for shopping cart and checkout
 }
 

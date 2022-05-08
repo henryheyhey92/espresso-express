@@ -103,21 +103,17 @@ router.get('/success', async function (req, res) {
         let userData = await user.getUser(req.session.user.id)
         userAddress = userData.attributes.address
         console.log(userAddress);
-        console.log("line 104 of checkout.js");
         //get product id
         if (stripeData) {
-            console.log("line 107 of checkout.js");
             orderedProducts = JSON.parse(stripeData.metadata.orders);
             for(let element of orderedProducts){
-                // console.log(element)
                 const order = new Order();
                 const product = new ProductServices()
                 let productRes = await product.getProductById(element.product_id);
-                // console.log(productRes.toJSON());
                 const user = new UserServices();
                 let userRes = await user.getUserById(req.session.user.id);
                 console.log(userRes.toJSON().address);
-                // let product_name = 
+                // save order 
                 order.set('product_id', element.product_id);
                 order.set('user_id', req.session.user.id);
                 order.set('order_date', date.toString());

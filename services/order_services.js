@@ -6,7 +6,11 @@ class OrderServices {
     }
 
     async getUserOrder(){
-        return await orderDataLayer.getUserOrder(this.user_id)
+        return await orderDataLayer.getUserOrder(this.user_id);
+    }
+
+    async getAllUserOrder(){
+        return await orderDataLayer.getAllUserOrder();
     }
 }
 

@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const CartServices = require('../../services/cart_services');
 const UserServices = require('../../services/user_services');
+const ProductServices = require('../../services/product_services');
 const Stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const { Order, Product, RoastType, Certificate, Origin } = require('../../models');
+const { Order, Product, RoastType, Certificate, Origin, User } = require('../../models');
 const productDataLayer = require('../../dal/products');
 const userDataLayer = require('../../dal/users');
 
@@ -101,20 +102,31 @@ router.get('/success', async function (req, res) {
         let userAddress = null;
         let userData = await user.getUser(req.session.user.id)
         userAddress = userData.attributes.address
-
+        console.log(userAddress);
+        console.log("line 104 of checkout.js");
         //get product id
         if (stripeData) {
-           
+            console.log("line 107 of checkout.js");
             orderedProducts = JSON.parse(stripeData.metadata.orders);
             for(let element of orderedProducts){
-                console.log(element)
+                // console.log(element)
                 const order = new Order();
+                const product = new ProductServices()
+                let productRes = await product.getProductById(element.product_id);
+                // console.log(productRes.toJSON());
+                const user = new UserServices();
+                let userRes = await user.getUserById(req.session.user.id);
+                console.log(userRes.toJSON().address);
+                // let product_name = 
                 order.set('product_id', element.product_id);
                 order.set('user_id', req.session.user.id);
                 order.set('order_date', date.toString());
                 order.set('status', stripeData.status);
-                order.set('shipping_address', userAddress);
+                order.set('shipping_address', userRes.toJSON().address);
                 order.set('quantity', element.quantity);
+                order.set('product_name', productRes.toJSON().product_name);
+                order.set('product_image_url', productRes.toJSON().image_url);
+                order.set('purchaser_name', userRes.toJSON().first_name); 
                 await order.save();
             }
         }
@@ -170,11 +182,10 @@ router.post('/process_payment', express.raw({
     }
     console.log(event);
     if (event.type == 'checkout.session.completed') {
-
+        console.log("enter check session completed")
         let stripeSession = event.data.object;
         console.log(stripeSession);
         stripeData = stripeSession;
-        
         // process stripeSession
     }
 

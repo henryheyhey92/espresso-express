@@ -10,6 +10,10 @@ async function getUserOrder(userId){
     return order;
 } 
 
+async function getAllUserOrder(){
+    return await Order.fetchAll();
+}
+
 module.exports = {
-    getUserOrder
+    getUserOrder, getAllUserOrder
 }

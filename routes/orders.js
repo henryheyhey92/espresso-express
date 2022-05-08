@@ -16,26 +16,27 @@ router.get('/all/', checkIfAuthenticated, async (req, res) => {
         //create order obj
         let orderArray = [];
         let order = new OrderServices(req.session.user.id);
-        let orderResult = await order.getUserOrder();
+        let orderResult = await order.getAllUserOrder();
         
         
-        if(orderResult){
+        // if(orderResult){
            
-            //get user name
-            console.log("userinfo result");
-            let user = new UserServices();
-            let userInfo = await user.getUserById(req.session.user.id);
+        //     //get user name
+        //     console.log("userinfo result");
+        //     let user = new UserServices();
+        //     let userInfo = await user.getUserById(req.session.user.id);
 
             
-            console.log(userInfo.toJSON());
-            console.log("orderinfo result");
-            let orderResultJSON = orderResult.toJSON();
-            orderResultJSON.forEach(element => {
-                //append product name 
-                Object.assign(element, {product_name:userInfo.toJSON().first_name});
-            });
-            console.log(orderResultJSON);
-        }
+        //     console.log(userInfo.toJSON());
+        //     console.log("orderinfo result");
+        //     let orderResultJSON = orderResult.toJSON();
+        //     orderResultJSON.forEach(element => {
+        //         //append product name 
+        //         Object.assign(element, {product_name:userInfo.toJSON().first_name});
+        //         Object.assign(element, )
+        //     });
+        //     console.log(orderResultJSON);
+        // }
          
         res.status(200);
         // res.send(orderResult);

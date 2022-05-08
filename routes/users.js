@@ -190,11 +190,11 @@ router.post('/', async (req, res) => {
             // process the login
 
             // ...find the user by email and password
-            console.log("Hello hahahaha")
+            // console.log("Hello at users.js")
             let findUser = new UserServices();
             let user = await findUser.getUserByEmail(form.data.email);
            
-            console.log(user);
+            // console.log(user);
 
             if (!user) {
                 req.flash("error_messages", "Sorry, the authentication details you provided does not work.")

@@ -48,7 +48,10 @@ exports.up = function(db) {
     order_date: { type: 'string', length: 100, notNull: true },
     status: { type: 'string', length: 100, notNull: true },
     shipping_address: { type: 'string', length: 1000, notNull: true },
-    quantity: { type: 'int', unsigned: true, notNull: true }
+    quantity: { type: 'int', unsigned: true, notNull: true },
+    product_name: {type: 'string', length: 100, notNull: true },
+    purchaser_name: {type: 'string', length: 100, notNull: true},
+    product_image_url: {type: 'string', length: 1000, notNull: false}
     // price: { type: 'int', unsigned: true, notNull: true }
 });
 };

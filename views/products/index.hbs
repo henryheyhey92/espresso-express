@@ -59,8 +59,13 @@
             </td>
             <td>
                  <a href="/cart/{{this.id}}/add" class="btn btn-success btn-sm">Add to cart</a>
+                {{!-- {{#if usersType}} --}}
                 <a href="/products/{{this.id}}/update" class="btn btn-primary btn-sm">Update</a>
                 <a href="/products/{{this.id}}/delete" class="btn btn-danger btn-sm">Delete</a>
+                {{!-- {{else}}
+                 <a href="/products/{{this.id}}/update" class="d-none">Update</a>
+                <a href="/products/{{this.id}}/delete" class="d-none">Delete</a>
+                {{/if}} --}}
             </td>
         </tr>
         {{/each}}

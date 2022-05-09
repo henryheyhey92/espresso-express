@@ -1,24 +1,48 @@
+
+//for shop keeper only
 const checkIfAuthenticated = (req, res, next) => {
-    if (req.session.user) {
+    let access = req.session.user.user_type;
+    if (access === "A") {
         next()
     } else {
         req.flash("error_messages", "You need to sign in to access this page");
-        res.redirect('/');
+        res.redirect('/profile');
     }
 }
 
-//check for shop owner
-//when user_type equal A
+const checkIfManagerOwnerAuthenticated = (req, res, next) => {
+    let access = req.session.user.user_type;
+    if(access === "M" || access === "A"){
+        next()
+    } else {
+        req.flash("error_messages", "You need to sign in as shop manager or owner to access the page");
+        res.redirect('/profile');
+    }
+}
 
-//check for manager
-//when user_type equals M
+// for normal users only
+const checkIfUserOwnerAuthenticated = (req, res, next) => {
+    let access = req.session.user.user_type;
+    if(access === "U" || access === "A"){
+        next()
+    } else {
+        req.flash("error_messages", "You need to sign in as normal user or owner to access the page");
+        res.redirect('/profile');
+    }
+}
 
-//check for user
-//when user_type equal U
-// const userAuthentication = (req, res, nex) => {
-//     if(req.session.user.user_type)
-// }
+// for all access
+const checkIfAllAuthenticated = (req, res, next) => {
+   
+    if(req.session.user.user_type){
+        next()
+    } else {
+        req.flash("error_messages", "You need to sign in as normal user or owner or manager to access the page");
+        res.redirect('/profile');
+    }
+}
+
 
 module.exports = {
-    checkIfAuthenticated
+    checkIfAuthenticated, checkIfUserOwnerAuthenticated, checkIfManagerOwnerAuthenticated, checkIfAllAuthenticated
 }

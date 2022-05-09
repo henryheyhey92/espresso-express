@@ -89,7 +89,7 @@ app.use(function(req,res,next){
 })
 
 //const for import new routes
-const landingRoutes = require('./routes/landing');
+// const landingRoutes = require('./routes/landing');
 const productsRoutes = require('./routes/products');
 const userRoutes = require('./routes/users');
 const cloudinaryRoutes = require('./routes/cloudinary.js');
@@ -107,13 +107,13 @@ const { checkIfAuthenticated } = require('./middlewares');
 
 async function main() {
     // landing routes 
-    app.use('/landing', landingRoutes);
-    app.use('/products', productsRoutes);
-    app.use('/', userRoutes);
-    app.use('/cloudinary', cloudinaryRoutes);
-    app.use('/cart', checkIfAuthenticated, shoppingCartRoutes);
-    app.use('/checkout', checkoutRoutes);
-    app.use('/api/products', express.json(), api.products);
+    // app.use('/landing', landingRoutes);
+    app.use('/products', productsRoutes);  //only shop owner and manager
+    app.use('/', userRoutes); // for all
+    app.use('/cloudinary', cloudinaryRoutes); 
+    app.use('/cart', checkIfAuthenticated, shoppingCartRoutes); // only for user and shop owner
+    app.use('/checkout', checkoutRoutes); // only for user and shop owner
+    app.use('/api/products', express.json(), api.products); 
     app.use('/api/shoppingCart', express.json(), api.shoppingCart);
     app.use('/api/checkout', api.checkout);
     app.use('/orders', checkIfAuthenticated, orderRoutes);

@@ -7,13 +7,13 @@ const dataLayer = require('../dal/products');
 
 //import in the Forms
 const { bootstrapField, createProductForm, createSearchForm } = require('../forms');
-const { checkIfAuthenticated } = require('../middlewares');
+const { checkIfAuthenticated, checkIfManagerOwnerAuthenticated, checkIfUserOwnerAuthenticated, checkIfAllAuthenticated } = require('../middlewares');
 const async = require("hbs/lib/async");
 // const async = require("hbs/lib/async");
 
 //retrieve roast_type table info with roastType, 
 //function in the model
-router.get('/', checkIfAuthenticated, async (req, res) => {
+router.get('/', checkIfAllAuthenticated, async (req, res) => {
     // #2 - fetch all the products (ie, SELECT * from products)
     try {
         const allRoastType = await dataLayer.getAllRoastType();
@@ -87,22 +87,23 @@ router.get('/', checkIfAuthenticated, async (req, res) => {
                 let products = await q.fetch({
                     withRelated: ['certificates', 'roastType', 'origins']
                 })
+                // console.log(req.session.user);
+                // let userType = null
+                // if(req.session.user.user_type !== 'U'){
+                //     userType = true
+                //     console.log('enter');
+                // }else{
+                //     userType = false;
+                // }
                 res.render('products/index', {
                     'products': products.toJSON(),
                     'form': form.toHTML(bootstrapField)
+                    // 'usersType': userType.toJSON()
                 })
 
             }
         })
 
-
-
-        // let products = await Product.collection().fetch({
-        //     withRelated: ['certificates', 'roastType', 'origins']
-        // });
-        // res.render('products/index', {
-        //     'products': products.toJSON() //#3 convert collection to JSON
-        // })
     } catch (e) {
         res.status(500);
         res.json({
@@ -113,7 +114,7 @@ router.get('/', checkIfAuthenticated, async (req, res) => {
 
 })
 
-router.get('/create', checkIfAuthenticated, async (req, res) => {
+router.get('/create', checkIfManagerOwnerAuthenticated, async (req, res) => {
     try {
         const allRoastType = await dataLayer.getAllRoastType();
         const allCerts = await dataLayer.getAllCerts();
@@ -136,7 +137,7 @@ router.get('/create', checkIfAuthenticated, async (req, res) => {
 
 })
 
-router.post('/create', checkIfAuthenticated, async (req, res) => {
+router.post('/create', checkIfManagerOwnerAuthenticated, async (req, res) => {
     try {
         const allRoastType = await dataLayer.getAllRoastType();
         const allCerts = await dataLayer.getAllCerts();
@@ -187,7 +188,7 @@ router.post('/create', checkIfAuthenticated, async (req, res) => {
 })
 
 //update product
-router.get('/:id/update', async (req, res) => {
+router.get('/:id/update', checkIfManagerOwnerAuthenticated, async (req, res) => {
     try {
         //retrieve product
         const product = await dataLayer.getProductById(req.params.id);
@@ -228,7 +229,7 @@ router.get('/:id/update', async (req, res) => {
 })
 
 
-router.post('/:id/update', async (req, res) => {
+router.post('/:id/update', checkIfManagerOwnerAuthenticated ,async (req, res) => {
     try {
         const product = await dataLayer.getProductById(req.params.id);
         const allRoastType = await dataLayer.getAllRoastType();
@@ -280,7 +281,7 @@ router.post('/:id/update', async (req, res) => {
 })
 
 
-router.get('/:id/delete', checkIfAuthenticated, async (req, res) => {
+router.get('/:id/delete', checkIfManagerOwnerAuthenticated, async (req, res) => {
     //fetch the product that we want to delete
     try {
         const product = await dataLayer.getProductById(req.params.id);
@@ -297,7 +298,7 @@ router.get('/:id/delete', checkIfAuthenticated, async (req, res) => {
     }
 })
 
-router.post('/:id/delete', checkIfAuthenticated, async (req, res) => {
+router.post('/:id/delete', checkIfManagerOwnerAuthenticated, async (req, res) => {
     try {
         const product = await dataLayer.getProductById(req.params.id);
         await product.destroy();

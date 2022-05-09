@@ -8,6 +8,10 @@ class ProductServices {
     async getProductById(product_id){
         return await productDataLayer.getProductById(product_id);
     }
+    //get all product name for selection field
+    async getProductName(){
+        return await productDataLayer.getAllProductsName();
+    }
 
     // async getProductByName(product_name){
     //     return await productDataLayer.getProductByName(product_name);

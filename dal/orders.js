@@ -14,6 +14,12 @@ async function getAllUserOrder(){
     return await Order.fetchAll();
 }
 
+async function saveOrder(orderObj){
+    const product = new Order();
+    await product.save(orderObj)
+    
+}
+
 module.exports = {
-    getUserOrder, getAllUserOrder
+    getUserOrder, getAllUserOrder, saveOrder
 }

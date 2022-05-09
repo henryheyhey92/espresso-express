@@ -206,10 +206,51 @@ const createSearchForm = (roast_type, certificates, origins) => {
     })
 }
 
+const createOrderForm = (allProduct, allUser) => {
+    return forms.create({
+        'product_name': fields.string({
+            'label': 'Product Name',
+            'required': true,
+            'errorAfterField': true,
+            'widget': widgets.select(),
+            'choices': allProduct
+        }),
+        'purchaser_name': fields.string({
+            'label': 'Purchaser Name',
+            'required': true,
+            'errorAfterField': true,
+            'widget': widgets.select(),
+            'choices': allUser
+        }),
+        'status': fields.string({
+            'label': 'Status',
+            'required': true,
+            'errorAfterField': true,
+            'widget': widgets.select(),
+            'choices': {
+                1 : "complete",
+                2 : "incomplete",
+                3 : "delievered"
+            }
+        }),
+        'shipping_address': fields.string({
+            'required': true,
+            'errorAfterField': true,
+            'validators': [validators.maxlength(1000)]
+        }),
+        'quantity': fields.string({
+            'required': true,
+            'errorAfterField': true,
+            'validators': [validators.integer(), validators.min(0)]
+        })
+    })
+}
+
 module.exports = {
     bootstrapField,
     createProductForm,
     createUserForm,
     createLoginForm,
-    createSearchForm
+    createSearchForm,
+    createOrderForm
 }

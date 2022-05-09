@@ -56,7 +56,7 @@ router.get('/', checkIfAuthenticated, async (req, res) => {
                 //         .where('roast_type.name', 'like', '%' + req.query.roast_type_id + '%')
                 // }
                 if (form.data.roast_type_id) {
-                    q.where('roast_type_id', '=', form.data.roast_type_id)
+                    q = q.where('roast_type_id', '=', form.data.roast_type_id)
                 }
                 
                 if (form.data.min_price) {

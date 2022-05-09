@@ -28,7 +28,14 @@ async function getAllUser(){
     return user;
 }
 
+async function getAllUserName(){
+    const user = await User.fetchAll().map(user => {
+        return [user.get('id'), user.get('first_name')]
+    })
+    return user;
+}
+
 
 module.exports = {
-    getAllUsers, getUserById, getUserByEmail, getAllUser
+    getAllUsers, getUserById, getUserByEmail, getAllUser, getAllUserName
 }

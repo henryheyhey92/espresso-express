@@ -24,6 +24,10 @@ class UserServices {
     async getUserSave(){
         return await userDataLayer.getUserSave();
     }
+    //get user name and id
+    async getAllUserName(){
+        return await userDataLayer.getAllUserName();
+    }
 }
 
 module.exports = UserServices;

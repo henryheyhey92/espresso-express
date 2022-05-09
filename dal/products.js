@@ -33,10 +33,18 @@ async function getAllOrigin() {
     const allOrigin = await Origin.fetchAll().map(origin => {
         return [origin.get('id'), origin.get('country_name')]
     })
+    console.log("get origin");
+    console.log(allOrigin);
     return allOrigin;
 }
 
+async function getAllProductsName(){
+    const allProducts = await Product.fetchAll().map(product => {
+        return [product.get('id'), product.get('product_name')]
+    })
+    return allProducts;
+}
 
 module.exports = {
-    getProductById, getAllCerts, getAllRoastType, getAllOrigin, getAllProducts
+    getProductById, getAllCerts, getAllRoastType, getAllOrigin, getAllProducts, getAllProductsName
 }

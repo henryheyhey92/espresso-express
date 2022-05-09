@@ -9,7 +9,7 @@ const { checkIfAuthenticated } = require('../middlewares');
 
 
 const { } = require('../middlewares');
-const { bootstrapField, createOrderForm } = require("../forms");
+const { bootstrapField, createOrderForm, updateStatusForm } = require("../forms");
 const { knex } = require("../bookshelf");
 
 
@@ -126,7 +126,7 @@ router.post('/add', async (req, res) => {
                     req.flash("success_messages", `New Order for ${purchaserName} has been created`)
                     res.redirect('/orders/all');
                     addOrder = {};
-                }else{
+                } else {
                     req.flash("error_messages", `New Order not created`)
                     res.redirect('/orders/add');
                 }
@@ -149,9 +149,20 @@ router.post('/add', async (req, res) => {
 })
 
 router.get('/:id/update', async (req, res) => {
-    try{
+    try {
+        const allProduct = await new ProductServices().getProductName();
+        const allUser = await new UserServices().getAllUserName();
+        let orderObj = new OrderServices();
+        let orderRes = await orderObj.getOrderById(req.params.id);
+        const form = updateStatusForm()
+        let temp = orderRes.get('status')
+        form.fields.status.value = (temp === "complete" ? 1 : ((temp === "incomplete") ? 2 : 3));
+        res.render('orders/update', {
+            'orders': orderRes.toJSON(),
+            'form': form.toHTML(bootstrapField)
+        })
 
-    }catch (e){
+    } catch (e) {
         res.status(500);
         res.json({
             'message': "Internal server error. Please contact administrator"
@@ -161,9 +172,29 @@ router.get('/:id/update', async (req, res) => {
 })
 
 router.post('/:id/update', async (req, res) => {
-    try{
+    try {
+        const allProduct = await new ProductServices().getProductName();
+        const allUser = await new UserServices().getAllUserName();
+        let orderObj = new OrderServices();
+        let orderRes = await orderObj.getOrderById(req.params.id);
+        const form = updateStatusForm();
 
-    }catch (e){
+        form.handle(req, {
+            'success': async (form) => {
+                // form.data.status === 1 ? "complete" : ((form.data.status === 2) ? "incomplete" : "delievered")
+                console.log(typeof(form.data.status))
+                orderRes.set("status", (form.data.status === "1" ? "complete " : ((form.data.status === "2") ? "incomplete" : "delievered")));
+                orderRes.save();
+                res.redirect('/orders/all');
+            },
+            'error': async (form) => {
+                res.render('orders/update', {
+                    'orders': orderRes.toJSON(),
+                    'form': form.toHTML(bootstrapField)
+                })
+            }
+        })
+    } catch (e) {
         res.status(500);
         res.json({
             'message': "Internal server error. Please contact administrator"
@@ -173,7 +204,7 @@ router.post('/:id/update', async (req, res) => {
 })
 
 router.get('/:id/delete', async (req, res) => {
-    try{
+    try {
         let orderObj = new OrderServices();
         let orderRes = await orderObj.getOrderById(req.params.id);
 
@@ -181,7 +212,7 @@ router.get('/:id/delete', async (req, res) => {
             'orders': orderRes.toJSON()
         })
 
-    }catch (e){
+    } catch (e) {
         res.status(500);
         res.json({
             'message': "Internal server error. Please contact administrator (get delete)"
@@ -190,13 +221,13 @@ router.get('/:id/delete', async (req, res) => {
     }
 })
 
-router.post('/:id/delete', async(req, res) => {
-    try{
+router.post('/:id/delete', async (req, res) => {
+    try {
         let orderObj = new OrderServices();
         const orderRes = await orderObj.getOrderById(req.params.id);
         await orderRes.destroy();
         res.redirect('/orders/all');
-    }catch (e){
+    } catch (e) {
         res.status(500);
         res.json({
             'message': "Internal server error. Please contact administrator"

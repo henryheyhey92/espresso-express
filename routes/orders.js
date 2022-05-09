@@ -5,7 +5,7 @@ const { Product, RoastType, Certificate, Origin, Order } = require('../models');
 const OrderServices = require('../services/order_services');
 const UserServices = require('../services/user_services');
 const ProductServices = require('../services/product_services');
-const { checkIfAuthenticated } = require('../middlewares');
+const { checkIfAuthenticated, checkIfManagerOwnerAuthenticated } = require('../middlewares');
 
 
 const { } = require('../middlewares');
@@ -13,7 +13,7 @@ const { bootstrapField, createOrderForm, updateStatusForm, createSearchOrderForm
 const { knex } = require("../bookshelf");
 
 
-router.get('/all/', checkIfAuthenticated, async (req, res) => {
+router.get('/all/', async (req, res) => {
     try {
         //create order obj
         const allProduct = await new ProductServices().getProductName();

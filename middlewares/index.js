@@ -5,7 +5,7 @@ const checkIfAuthenticated = (req, res, next) => {
     if (access === "A") {
         next()
     } else {
-        req.flash("error_messages", "You need to sign in to access this page");
+        req.flash("error_messages", "You need to sign in as shop owner to access this page");
         res.redirect('/profile');
     }
 }

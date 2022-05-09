@@ -132,12 +132,13 @@ const createUserForm = () => {
             'required': validators.required("don\'t you know your own password"),
             'errorAfterField': true,
             'validators': [validators.matchField('password')]
-        }),
-        'user_type': fields.string({
-            'required': validators.required("Please input user type"),
-            'errorAfterField': true,
-            'validators': [validators.maxlength(1)]
         })
+        //,
+        // 'user_type': fields.string({
+        //     'required': validators.required("Please input user type"),
+        //     'errorAfterField': true,
+        //     'validators': [validators.maxlength(1)]
+        // })
 
     })
 }

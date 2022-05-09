@@ -11,6 +11,7 @@ const getHashedPassword = (password) => {
 
 const { User } = require('../models');
 const { createUserForm, createLoginForm, bootstrapField } = require('../forms');
+const { checkIfAuthenticated } = require("../middlewares");
 
 async function getUserById(userId) {
     const user = await User.where({
@@ -21,7 +22,7 @@ async function getUserById(userId) {
     return user;
 }
 
-router.get('/all', async (req, res) => {
+router.get('/all', checkIfAuthenticated, async (req, res) => {
     try {
         let allUser = new UserServices();
         let users = await allUser.getAllUser();
@@ -57,8 +58,8 @@ router.post('/register', async (req, res) => {
                 'email': form.data.email,
                 'phone': form.data.phone,
                 'password': getHashedPassword(form.data.password),
-                'confirm_password': form.data.confirm_password,
-                'user_type': form.data.user_type
+                'confirm_password': getHashedPassword(form.data.confirm_password),
+                'user_type': 'U'
             });
             await user.save();
             req.flash("success_messages", "User signed up successfully!");
@@ -91,7 +92,7 @@ router.get('/:id/update', async (req, res) => {
         form.fields.phone.value = user.get('phone');
         form.fields.password.value = getHashedPassword(user.get('password'));
         form.fields.confirm_password.value = user.get('confirm_password');
-        form.fields.user_type.value = user.get('user_type');
+        // form.fields.user_type.value = user.get('user_type');
 
         res.render('users/update', {
             'form': form.toHTML(bootstrapField),
@@ -123,7 +124,7 @@ router.post('/:id/update', async (req, res) => {
                 user.set('phone', form.data.phone),
                 user.set('password', getHashedPassword(form.data.password)),
                 user.set('confirm_password', form.data.confirm_password),
-                user.set('user_type', form.data.user_type)
+                // user.set('user_type', form.data.user_type)
                 user.save();
                 res.redirect('/all');
             },

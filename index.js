@@ -102,21 +102,21 @@ const api = {
     checkout: require('./routes/api/checkout')
 }
 
-const { checkIfAuthenticated } = require('./middlewares');
+const { checkIfAuthenticated, checkIfUserOwnerAuthenticated, checkIfManagerOwnerAuthenticated } = require('./middlewares');
 
 
 async function main() {
     // landing routes 
     // app.use('/landing', landingRoutes);
-    app.use('/products', productsRoutes);  //only shop owner and manager
-    app.use('/', userRoutes); // for all
+    app.use('/products', productsRoutes);  //only shop owner and manager, some user can access
+    app.use('/',userRoutes); // for all
     app.use('/cloudinary', cloudinaryRoutes); 
-    app.use('/cart', checkIfAuthenticated, shoppingCartRoutes); // only for user and shop owner
+    app.use('/cart', checkIfUserOwnerAuthenticated, shoppingCartRoutes); // only for user and shop owner
     app.use('/checkout', checkoutRoutes); // only for user and shop owner
     app.use('/api/products', express.json(), api.products); 
     app.use('/api/shoppingCart', express.json(), api.shoppingCart);
     app.use('/api/checkout', api.checkout);
-    app.use('/orders', checkIfAuthenticated, orderRoutes);
+    app.use('/orders', checkIfManagerOwnerAuthenticated, orderRoutes);
     //here need to write route for shopping cart and checkout
 }
 

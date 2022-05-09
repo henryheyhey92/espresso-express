@@ -9,17 +9,65 @@ const { checkIfAuthenticated } = require('../middlewares');
 
 
 const { } = require('../middlewares');
-const { bootstrapField, createOrderForm, updateStatusForm } = require("../forms");
+const { bootstrapField, createOrderForm, updateStatusForm, createSearchOrderForm } = require("../forms");
 const { knex } = require("../bookshelf");
 
 
 router.get('/all/', checkIfAuthenticated, async (req, res) => {
     try {
         //create order obj
-        let orderArray = [];
-        let order = new OrderServices(req.session.user.id);
+        const allProduct = await new ProductServices().getProductName();
+        const allUser = await new UserServices().getAllUserName();
+        allUser.unshift(["", "All"]);
+        let order = new OrderServices();
         let orderResult = await order.getAllUserOrder();
 
+        let searchForm = createSearchOrderForm(allProduct, allUser);
+        let q = Order.collection();
+
+        searchForm.handle(req, {
+            'empty': async (form) => {
+                res.render('orders/index', {
+                    'orders': orderResult.toJSON(),
+                    'form': form.toHTML(bootstrapField)
+                })
+            },
+            'error': async (form) => {
+                res.render('orders/index', {
+                    'orders': orderResult.toJSON(),
+                    'form': form.toHTML(bootstrapField)
+                })
+            },
+            'success': async (form) => {
+                if (form.data.product_name) {
+                    q = q.where('product_name', 'like', '%' + req.query.product_name + '%')
+                }
+
+                // if (form.data.roast_type_id && form.data.roast_type_id != "0") {
+                //     q = q.query('join', 'roast_type', 'roast_type_id', 'roast_type.id')
+                //         .where('roast_type.name', 'like', '%' + req.query.roast_type_id + '%')
+                // }
+                if (form.data.status) {
+                    let status = (form.data.status === "1" ? "complete" : ((form.data.status === "2") ? "incomplete" : (form.data.status === "3") ? "delievered" : ""))
+                    if(status !== ""){
+                        q = q.where('status', 'like', status)
+                    }
+                }
+                
+                // form.data.purchaser_name is the id
+                if (form.data.purchaser_name) {
+                    q = q.where('user_id', '=', form.data.purchaser_name)
+                }
+
+
+                let order = await q.fetch();
+                res.render('orders/index', {
+                    'orders': order.toJSON(),
+                    'form': form.toHTML(bootstrapField)
+                })
+
+            }
+        })
 
         // if(orderResult){
 
@@ -40,11 +88,11 @@ router.get('/all/', checkIfAuthenticated, async (req, res) => {
         //     console.log(orderResultJSON);
         // }
 
-        res.status(200);
-        // res.send(orderResult);
-        res.render('orders/index', {
-            'orders': orderResult.toJSON()
-        })
+        // res.status(200);
+        // // res.send(orderResult);
+        // res.render('orders/index', {
+        //     'orders': orderResult.toJSON()
+        // })
 
     } catch (e) {
         res.status(500);

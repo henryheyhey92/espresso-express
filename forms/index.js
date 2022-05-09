@@ -263,6 +263,37 @@ const updateStatusForm = () => {
     })
 }
 
+const createSearchOrderForm = (allProduct, allUser) => {
+    return forms.create({
+        // <input type="text" name="name"/>
+        'product_name': fields.string({
+            'required': false,
+            'errorAfterField': true,
+            'validators': [validators.maxlength(100)]
+        }),
+        // <input type="text" name="cost"/>
+        'purchaser_name': fields.string({
+            'label': 'Purchase Name',
+            'required': false,
+            'errorAfterField': true,
+            'widget': widgets.select(),
+            'choices': allUser
+        }),
+        'status': fields.string({
+            'label': 'Status',
+            'required': false,
+            'errorAfterField': true,
+            'widget': widgets.select(),
+            'choices': {
+                0 : "----",
+                1 : "complete",
+                2 : "incomplete",
+                3 : "delievered"
+            }
+        })
+    })
+}
+
 module.exports = {
     bootstrapField,
     createProductForm,
@@ -270,5 +301,6 @@ module.exports = {
     createLoginForm,
     createSearchForm,
     createOrderForm,
-    updateStatusForm
+    updateStatusForm,
+    createSearchOrderForm
 }

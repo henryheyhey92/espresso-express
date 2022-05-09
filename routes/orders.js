@@ -148,4 +148,63 @@ router.post('/add', async (req, res) => {
     }
 })
 
+router.get('/:id/update', async (req, res) => {
+    try{
+
+    }catch (e){
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+})
+
+router.post('/:id/update', async (req, res) => {
+    try{
+
+    }catch (e){
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+})
+
+router.get('/:id/delete', async (req, res) => {
+    try{
+        let orderObj = new OrderServices();
+        let orderRes = await orderObj.getOrderById(req.params.id);
+
+        res.render('orders/delete.hbs', {
+            'orders': orderRes.toJSON()
+        })
+
+    }catch (e){
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator (get delete)"
+        })
+        console.log(e);
+    }
+})
+
+router.post('/:id/delete', async(req, res) => {
+    try{
+        let orderObj = new OrderServices();
+        const orderRes = await orderObj.getOrderById(req.params.id);
+        await orderRes.destroy();
+        res.redirect('/orders/all');
+    }catch (e){
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+})
+
+
+
 module.exports = router;

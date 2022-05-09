@@ -4,6 +4,11 @@ class OrderServices {
     constructor(user_id){
         this.user_id = user_id;
     }
+     //get order by id
+    async getOrderById(orderId){
+        return await orderDataLayer.getOrderById(orderId);
+    }
+
     //get order by user id
     async getUserOrder(){
         return await orderDataLayer.getUserOrder(this.user_id);
@@ -24,13 +29,15 @@ class OrderServices {
     }
 
     //delete order 
-    async deleteOrder(){
-        return await orderDataLayer.deleteOrder();
+    async deleteOrder(orderId){
+        return await orderDataLayer.deleteOrder(orderId);
     }
     //there will be no return 
     async saveOrder(orderObj){
         await orderDataLayer.saveOrder(orderObj);
     }
+
+   
 
 }
 

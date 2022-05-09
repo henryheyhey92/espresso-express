@@ -20,6 +20,13 @@ async function saveOrder(orderObj){
     
 }
 
+async function getOrderById(orderId){
+    const order = await Order.where({
+        'id': orderId
+    }).fetch();
+    return order;
+}
+
 module.exports = {
-    getUserOrder, getAllUserOrder, saveOrder
+    getUserOrder, getAllUserOrder, saveOrder, getOrderById
 }

@@ -2,20 +2,20 @@ const express = require('express')
 const router = express.Router();
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const {checkIfAuthenticatedJWT} = require('../../middlewares');
+const { checkIfAuthenticatedJWT } = require('../../middlewares');
 const { User } = require('../../models');
 
 
-const generateAccessToken = (user) => {
+const generateAccessToken = (user, secret, expiresIn) => {
     //three arguments
     return jwt.sign({
-        'first_name': user.get('first_name'),
-        'last_name': user.get('last_name'),
-        'id': user.get('id'),
-        'email': user.get('email'),
-        'user_type': user.get('user_type')
-    }, process.env.TOKEN_SECRET, {
-        expiresIn: "1h"
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'id': user.id,
+        'email': user.email,
+        'user_type': user.user_type
+    }, secret, {
+        'expiresIn': expiresIn
     });
 }
 
@@ -35,21 +35,41 @@ router.post('/login', async (req, res) => {
     });
     //there's no session in the api
     if (user && user.get('password') == getHashedPassword(req.body.password)) {
-        let accessToken = generateAccessToken(user);
+
+        let accessToken = generateAccessToken(user.toJSON(), process.env.TOKEN_SECRET, '15m');
+        let refreshToken = generateAccessToken(user.toJSON(), process.env.REFRESH_TOKEN_SECRET, '7d');
         res.send({
-            'accessToken': accessToken
+            accessToken, refreshToken
         })
     } else {
         res.send({
-            'error':'Wrong email or password'
+            'error': 'Wrong email or password'
         })
     }
 })
 
-router.get('/profile', checkIfAuthenticatedJWT, async(req,res)=>{
+router.get('/profile', checkIfAuthenticatedJWT, async (req, res) => {
     console.log("Enter profile")
     const user = req.user;
     res.send(user);
+})
+
+//allow the client to get a new access token 
+router.post('/refresh', async(req,res)=>{
+    let refreshToken = req.body.refreshToken;
+    if (!refreshToken) {
+        res.sendStatus(401);
+    }
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user)=>{
+        if (err) {
+            return res.sendStatus(403);
+        }
+
+        let accessToken = generateAccessToken(user, process.env.TOKEN_SECRET, '15m');
+        res.send({
+            accessToken
+        });
+    })
 })
 
 module.exports = router;

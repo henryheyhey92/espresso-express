@@ -3,7 +3,7 @@ const router = express.Router();
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { checkIfAuthenticatedJWT } = require('../../middlewares');
-const { User } = require('../../models');
+const { User, BlacklistedToken } = require('../../models');
 
 
 const generateAccessToken = (user, secret, expiresIn) => {
@@ -55,11 +55,30 @@ router.get('/profile', checkIfAuthenticatedJWT, async (req, res) => {
 })
 
 //allow the client to get a new access token 
+//this part need in the front end need set a timer that uses axios 
 router.post('/refresh', async(req,res)=>{
     let refreshToken = req.body.refreshToken;
     if (!refreshToken) {
         res.sendStatus(401);
     }
+
+    // check if the refresh token has been black listed
+    let blacklistedToken = await BlacklistedToken.where({
+        'token': refreshToken
+    }).fetch({
+        require: false
+    })
+
+
+    // if the refresh token has already been blacklisted
+    if (blacklistedToken) { 
+        res.status(401);
+        return res.send('The refresh token has already expired')
+    }
+
+
+
+
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user)=>{
         if (err) {
             return res.sendStatus(403);
@@ -71,5 +90,29 @@ router.post('/refresh', async(req,res)=>{
         });
     })
 })
+
+router.post('/logout', async (req, res) => {
+    let refreshToken = req.body.refreshToken;
+    if (!refreshToken) {
+        res.sendStatus(401);
+    } else {
+            jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET,async (err, user) => {
+            if (err) {
+                return res.sendStatus(403);
+            }
+
+            const token = new BlacklistedToken();
+            token.set('token', refreshToken);
+            token.set('date_created', new Date()); // use current date
+            await token.save();
+            res.send({
+                'message': 'logged out'
+            })
+        })
+
+    }
+
+})
+
 
 module.exports = router;

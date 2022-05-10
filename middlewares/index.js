@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 
 //for shop keeper only
 const checkIfAuthenticated = (req, res, next) => {

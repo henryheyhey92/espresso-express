@@ -35,10 +35,10 @@ router.post('/login', async (req, res) => {
     });
     //there's no session in the api
     if (user && user.get('password') == getHashedPassword(req.body.password)) {
-
+        console.log("login in works")
         let accessToken = generateAccessToken(user.toJSON(), process.env.TOKEN_SECRET, '15m');
         let refreshToken = generateAccessToken(user.toJSON(), process.env.REFRESH_TOKEN_SECRET, '7d');
-        res.send({
+        res.json({
             accessToken, refreshToken
         })
     } else {
@@ -96,6 +96,7 @@ router.post('/logout', async (req, res) => {
     if (!refreshToken) {
         res.sendStatus(401);
     } else {
+            console.log("enter logout")
             jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET,async (err, user) => {
             if (err) {
                 return res.sendStatus(403);

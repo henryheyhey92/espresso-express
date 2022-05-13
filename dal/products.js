@@ -6,12 +6,16 @@ const getAllProducts = async () => {
 
 
 async function getProductById(productId) {
+    console.log("enter data layer get Product by id");
+    console.log(productId);
     const product = await Product.where({
         'id': productId
     }).fetch({
         'require': true,
         'withRelated': ['certificates', 'roastType', 'origins']
     })
+    console.log("get by id product");
+    console.log(product);
     return product;
 }
 

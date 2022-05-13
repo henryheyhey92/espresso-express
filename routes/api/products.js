@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router();
 
-const productDataLayer = require('../../dal/products')
+const productDataLayer = require('../../dal/products');
+const ProductServices = require('../../services/product_services');
 const { Product, RoastType, Certificate, Origin } = require('../../models');
 const { bootstrapField, createProductForm, createSearchForm } = require('../../forms');
 
@@ -13,6 +14,25 @@ router.get('/', async (req, res) => {
         res.status(500);
         res.json({
             'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+})
+
+router.get('/:id', async (req, res) => {
+    try{
+        console.log("enter get item by id");
+        let product = new ProductServices();
+        let response = await product.getProductById(req.params.id);
+        console.log("get by id response");
+        console.log(response)
+        if(response){
+            res.send(response)
+        }
+    }catch (e){
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator (get product by id api)"
         })
         console.log(e);
     }

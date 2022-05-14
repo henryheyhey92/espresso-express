@@ -8,16 +8,18 @@
     <li class="list-group-item my-3">
         <h4>{{this.product.product_name}}</h3>
             <h5>Category: {{this.product.roastType.name}}</h5>
-            <h5>Cost: {{this.product.price}} </h5>
+            <h5>Cost: {{this.product.price}} cents</h5>
             <form method="POST" action="/cart/{{this.product.id}}/quantity/update">
                 <input type="hidden" value="{{../csrfToken}}" name="_csrf"/> 
                 <h5>
-                    Quantity: <input type="text" name="newQuantity" value="{{this.quantity}}" style="width:30px" /> 
+                    Quantity: 
+                    <input type="text" name="newQuantity" value="{{this.quantity}}" style="width:30px" />
+                    /<input type="text" name="currentQuantity" value="{{this.product.qty}}" style="width:50px" disabled />
                     <input type="submit" value="Update Quantity" class="btn btn-success btn-sm" />
                 </h5>
             </form>
             <div>
-                <a href="/cart/{{this.product.id}}/remove" class="btn btn-danger">Remove</a>
+                <a href="/cart/{{this.product.id}}/{{this.quantity}}/remove" class="btn btn-danger">Remove</a>
             </div>
     </li>
     {{/each}}

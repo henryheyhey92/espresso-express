@@ -213,8 +213,8 @@ router.post('/', async (req, res) => {
                         email: user.get('email'),
                         user_type: user.get('user_type')
                     }
-                    req.flash("success_messages", "Welcome back, " + user.get('first_name') + user.get('last_name'));
-                    res.redirect('/profile');
+                    req.flash("success_messages", "Welcome back, " + user.get('first_name') + ''+ user.get('last_name'));
+                    res.redirect('/products');
                 } else {
                     req.flash("error_messages", "Sorry, the authentication details you provided does not work.")
                     res.redirect('/')

@@ -12,6 +12,8 @@ router.get('/:user_id', async (req, res) => {
         console.log("Get cart items api");
         let cart = new CartServices(req.params.user_id);
         let result = (await cart.getCart()).toJSON();
+        console.log("cart result log");
+        console.log(result);
         res.status(200);
         res.send(result);
     } catch (e) {

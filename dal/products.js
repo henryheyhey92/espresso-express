@@ -1,4 +1,5 @@
 const { Product, RoastType, Certificate, Origin } = require('../models')
+const {knex} = require("../bookshelf");
 
 const getAllProducts = async () => {
     return await Product.fetchAll();
@@ -47,6 +48,27 @@ async function getAllProductsName(){
     return allProducts;
 }
 
+async function getProductQuantity(productId){
+    const quantity = await knex.select('qty').from('products').where({id : productId});
+    return quantity;
+}
+
+async function updateProductQuantity(productId, updateQty){
+    let num = parseInt(updateQty);
+    console.log(num);
+    const upDatedQuantity = await knex('products').where('id','=', productId).update({qty: num});
+    console.log("return value");
+    console.log(upDatedQuantity);
+    return upDatedQuantity;
+}
+
 module.exports = {
-    getProductById, getAllCerts, getAllRoastType, getAllOrigin, getAllProducts, getAllProductsName
+    getProductById, 
+    getAllCerts, 
+    getAllRoastType, 
+    getAllOrigin, 
+    getAllProducts, 
+    getAllProductsName,
+    getProductQuantity,
+    updateProductQuantity
 }

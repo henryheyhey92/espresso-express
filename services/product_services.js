@@ -13,6 +13,14 @@ class ProductServices {
         return await productDataLayer.getAllProductsName();
     }
 
+    async getProductQuantity(){
+        return await productDataLayer.getProductQuantity(this.product_id);
+    }
+
+    async updateProductQuantity(product_id, updateQty){
+        return await productDataLayer.updateProductQuantity(product_id, updateQty);
+    }
+
     // async getProductByName(product_name){
     //     return await productDataLayer.getProductByName(product_name);
     // }

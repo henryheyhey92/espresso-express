@@ -36,7 +36,7 @@ router.post('/login', async (req, res) => {
     //there's no session in the api
     if (user && user.get('password') == getHashedPassword(req.body.password)) {
         console.log("login in works")
-        let accessToken = generateAccessToken(user.toJSON(), process.env.TOKEN_SECRET, '15m');
+        let accessToken = generateAccessToken(user.toJSON(), process.env.TOKEN_SECRET, '3m');
         let refreshToken = generateAccessToken(user.toJSON(), process.env.REFRESH_TOKEN_SECRET, '7d');
         let userId = user.get('id');
         res.json({
@@ -59,6 +59,8 @@ router.get('/profile', checkIfAuthenticatedJWT, async (req, res) => {
 //this part need in the front end need set a timer that uses axios 
 router.post('/refresh', async(req,res)=>{
     let refreshToken = req.body.refreshToken;
+    console.log("This is refresh token");
+    console.log(refreshToken);
     if (!refreshToken) {
         res.sendStatus(401);
     }

@@ -1,8 +1,11 @@
 {{#extends 'base'}}
 {{#block 'content'}}
-<form method="GET">.  
-   {{{form}}}
-    <input type="submit" class="mb-3 mt-3 btn btn-primary" value="Search"/>
+<form method="GET">
+    {{{form}}}
+    <div class="d-flex">
+        <input type="submit" class="mb-3 mt-3 btn btn-primary" value="Search" />
+        <a href="/orders/add" class="m-3 btn btn-primary">Add Order</a>
+    </div>
 </form>
 <table class="table">
     <thead>
@@ -18,33 +21,33 @@
     </thead>
     <tbody>
         {{#each orders}}
-            <tr>
-                <td>
-                    {{this.id}}
-                </td>
-                <td>
-                    {{this.product_name}}
-                </td>
-                <td>
-                    {{this.purchaser_name}}
-                </td>
-                <td class="overflow-auto" style="width: 300px;">
-                    {{this.order_date}}
-                </td>
-                <td>
-                    {{this.status}}
-                </td>
-                <td>
-                    {{this.shipping_address}}
-                </td>
-                <td>
-                    {{this.quantity}}
-                </td>
-                <td>
-                    <a href="/orders/{{this.id}}/delete" class="btn btn-danger btn-sm">Delete</a>
-                    <a href="/orders/{{this.id}}/update" class="btn btn-primary btn-sm">Update</a>
-                </td>
-            </tr>
+        <tr>
+            <td>
+                {{this.id}}
+            </td>
+            <td>
+                {{this.product_name}}
+            </td>
+            <td>
+                {{this.purchaser_name}}
+            </td>
+            <td class="overflow-auto" style="width: 300px;">
+                {{this.order_date}}
+            </td>
+            <td>
+                {{this.status}}
+            </td>
+            <td>
+                {{this.shipping_address}}
+            </td>
+            <td>
+                {{this.quantity}}
+            </td>
+            <td>
+                <a href="/orders/{{this.id}}/delete" class="btn btn-danger btn-sm">Delete</a>
+                <a href="/orders/{{this.id}}/update" class="btn btn-primary btn-sm">Update</a>
+            </td>
+        </tr>
         {{/each}}
     </tbody>
 

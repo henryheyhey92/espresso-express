@@ -9,6 +9,7 @@ const CartServices = require('../../services/cart_services');
 // retrieve api 
 router.get('/:user_id', async (req, res) => {
     try {
+        console.log("Get cart items api");
         let cart = new CartServices(req.params.user_id);
         let result = (await cart.getCart()).toJSON();
         res.status(200);

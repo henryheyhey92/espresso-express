@@ -37,8 +37,6 @@ async function getAllOrigin() {
     const allOrigin = await Origin.fetchAll().map(origin => {
         return [origin.get('id'), origin.get('country_name')]
     })
-    console.log("get origin");
-    console.log(allOrigin);
     return allOrigin;
 }
 

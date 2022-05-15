@@ -55,10 +55,7 @@ async function getProductQuantity(productId){
 
 async function updateProductQuantity(productId, updateQty){
     let num = parseInt(updateQty);
-    console.log(num);
     const upDatedQuantity = await knex('products').where('id','=', productId).update({qty: num});
-    console.log("return value");
-    console.log(upDatedQuantity);
     return upDatedQuantity;
 }
 

@@ -1,4 +1,5 @@
 const { CartItem } = require('../models');
+const { knex } = require("../bookshelf");
 
 const getCart = async (userId) => {
     return await CartItem.collection()
@@ -6,7 +7,7 @@ const getCart = async (userId) => {
             'user_id': userId
         }).fetch({
             require: false, //for case user never add anything
-            withRelated: ['product', 'product.roastType' ]
+            withRelated: ['product', 'product.roastType']
         });
 }
 
@@ -39,9 +40,9 @@ async function removeFromCart(userId, productId) {
     return false;
 }
 
-async function removeAllFromCart(userId){
+async function removeAllFromCart(userId) {
     let cartItem = await getCart(userId);
-    if(cartItem){
+    if (cartItem) {
         await cartItem.destroy();
         return true;
     }
@@ -49,16 +50,47 @@ async function removeAllFromCart(userId){
 }
 
 async function updateQuantity(userId, productId, newQuantity) {
-    
-    let cartItem = await getCartItemByUserAndProduct(userId, productId);
-   
-    if (cartItem) {
-        cartItem.set('quantity', newQuantity);
-        cartItem.save();
-        return true;
+    try {
+        let cartItem = await getCartItemByUserAndProduct(userId, productId);
+
+        if (cartItem) {
+            cartItem.set('quantity', newQuantity);
+            cartItem.save();
+            return true;
+        }
+        return false;
+    } catch (e) {
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator (cart items)"
+        })
+        console.log(e);
     }
-    return false;
+
+}
+
+async function getCurrProductCartQuantity(productId, userId) {
+    try {
+        const quantity = await knex.select('quantity').from('cart_items').where(
+            { user_id: userId, product_id: productId });
+        return quantity;
+    } catch (e) {
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator (cart items)"
+        })
+        console.log(e);
+    }
+
 }
 
 
-module.exports = {getCart, getCartItemByUserAndProduct, createCartItem, removeFromCart, updateQuantity, removeAllFromCart}
+module.exports = {
+    getCart,
+    getCartItemByUserAndProduct,
+    createCartItem,
+    removeFromCart,
+    updateQuantity,
+    removeAllFromCart,
+    getCurrProductCartQuantity
+}

@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const { checkIfAuthenticatedJWT } = require('../../middlewares');
 
 const CartServices = require('../../services/cart_services');
-
+const ProductServices = require('../../services/product_services');
 
 // retrieve api 
 router.get('/:user_id', async (req, res) => {
@@ -48,15 +48,34 @@ router.post('/additem', checkIfAuthenticatedJWT, async (req, res) => {
 })
 
 //delete or remove item from cart
-router.post('/:product_id/remove', async (req, res) => {
+router.post('/remove/item', checkIfAuthenticatedJWT, async (req, res) => {
     try {
-        let { user_id } = req.body;
+        let { user_id, product_id, cart_quantity } = req.body;
         let cart = new CartServices(user_id);
-        let result = await cart.remove(req.params.product_id);
-        res.status(200);
-        res.json({
-            "result": result
-        })
+        //update the cart stock 
+        let product = new ProductServices(product_id);
+        let totalCurrProdQty = await product.getProductQuantity();
+        if (totalCurrProdQty) {
+            let qtyTobeUpdate = parseInt(totalCurrProdQty[0].qty) + parseInt(cart_quantity)
+            let result = await product.updateProductQuantity(product_id, qtyTobeUpdate); //it will return
+            if (result) {
+                await cart.remove(product_id);
+                res.status(200);
+                res.json({
+                    "result": true
+                })
+            } else {
+                res.status(400);
+                res.json({
+                    "result": "Bad request (shopping cart js remove item from cart)"
+                })
+            }
+        } else {
+            res.status(400);
+            res.json({
+                "result": "Bad request (shopping cart js, unable to query inventory qty)"
+            })
+        }
     } catch (e) {
         res.status(500);
         res.json({
@@ -65,6 +84,7 @@ router.post('/:product_id/remove', async (req, res) => {
         console.log(e);
     }
 })
+
 
 
 //Update quantity 

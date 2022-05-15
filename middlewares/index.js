@@ -58,6 +58,7 @@ const checkIfAuthenticatedJWT = (req, res, next) => {
 
             jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
                 if (err) {
+                    console.log("hint error");
                     return res.sendStatus(403);
                 }
 

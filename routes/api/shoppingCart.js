@@ -32,12 +32,35 @@ router.post('/additem', checkIfAuthenticatedJWT, async (req, res) => {
     console.log(req.headers.authorization);
     try {
         let { user_id, product_id } = req.body;
-        let cart = new CartServices(user_id);
-        let result = await cart.addToCart(product_id, 1);
-        res.status(200);
-        res.json({
-            "result": result
-        })
+
+        //get inventory product quantity
+        let product = new ProductServices(product_id);
+        let totalCurrProdQty = await product.getProductQuantity();
+
+        //check if can add item base on current item avaliability
+        if (totalCurrProdQty[0].qty >= 1) {
+            let qtyToBeUpdate = parseInt(totalCurrProdQty[0].qty) - 1
+            let result = await product.updateProductQuantity(product_id, qtyToBeUpdate); //it will return 
+            if (result) {
+                let cart = new CartServices(user_id);
+                let result = await cart.addToCart(product_id, 1);
+                res.status(200);
+                res.json({
+                    "result": result
+                })
+            } else {
+                res.json({
+                    "result": result,
+                    "message": "unable to update inventory"
+                })
+            }
+        } else {
+            res.status(404)
+            res.json({
+                "message": "not found (not enough stock)"
+            })
+        }
+
     } catch (e) {
         res.status(500);
         res.json({

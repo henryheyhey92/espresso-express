@@ -57,6 +57,8 @@ const checkIfAuthenticatedJWT = (req, res, next) => {
             const token = authHeader.split(' ')[1];
 
             jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
+                console.log("err");
+                console.log(err);
                 if (err) {
                     console.log("hint error");
                     return res.sendStatus(403);
@@ -66,7 +68,7 @@ const checkIfAuthenticatedJWT = (req, res, next) => {
                 next();
             });
         } else {
-            console.log("Eneter else case of autherHeader");
+            console.log("Enter else case of autherHeader");
             res.sendStatus(401);
         }
     } catch (e) {

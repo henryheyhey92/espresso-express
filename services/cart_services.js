@@ -17,6 +17,17 @@ class CartServices {
         }
     }
 
+    async substractToCart(productId){
+        let cartItem = await cartDataLayer.getCartItemByUserAndProduct(this.user_id, productId);
+        console.log("cart item");
+        console.log(cartItem);
+        if (cartItem.get('quantity') > 0) {
+            return await cartDataLayer.updateQuantity(this.user_id, productId, cartItem.get('quantity') -1);
+        }else{
+            return false;
+        }
+    }
+
     async remove(productId) {
         return await cartDataLayer.removeFromCart(this.user_id, productId);
     }

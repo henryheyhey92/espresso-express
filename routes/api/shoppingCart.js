@@ -26,7 +26,7 @@ router.get('/:user_id', async (req, res) => {
 })
 
 //Add cart item
-// user_id from req.body and the product_id
+// user_id from req.body and the product_id and increase item by 1
 router.post('/additem', checkIfAuthenticatedJWT, async (req, res) => {
     console.log("Print test authorization");
     console.log(req.headers.authorization);
@@ -60,6 +60,45 @@ router.post('/additem', checkIfAuthenticatedJWT, async (req, res) => {
                 "message": "not found (not enough stock)"
             })
         }
+
+    } catch (e) {
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator"
+        })
+        console.log(e);
+    }
+})
+
+//decrease item api 
+// user_id from req.body and the product_id and decrease item by 1
+router.post('/substract', checkIfAuthenticatedJWT, async (req, res) => {
+    console.log("Print test authorization");
+    console.log(req.headers.authorization);
+    try {
+        let { user_id, product_id } = req.body;
+
+        //get inventory product quantity
+        let product = new ProductServices(product_id);
+        let totalCurrProdQty = await product.getProductQuantity();
+
+        //plus 1 back to the inventory stock
+        let cart = new CartServices(user_id);
+        let result = await cart.substractToCart(product_id);
+        if (result) {
+            let qtyToBeUpdate = parseInt(totalCurrProdQty[0].qty) + 1
+            let result = await product.updateProductQuantity(product_id, qtyToBeUpdate);
+            res.status(200);
+            res.json({
+                "result": result
+            })
+        } else {
+            res.json({
+                "result": result,
+                "message": "unable to update inventory"
+            })
+        }
+
 
     } catch (e) {
         res.status(500);

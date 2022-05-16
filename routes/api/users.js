@@ -36,7 +36,7 @@ router.post('/login', async (req, res) => {
     //there's no session in the api
     if (user && user.get('password') == getHashedPassword(req.body.password)) {
         console.log("login in works")
-        let accessToken = generateAccessToken(user.toJSON(), process.env.TOKEN_SECRET, '3m');
+        let accessToken = generateAccessToken(user.toJSON(), process.env.TOKEN_SECRET, '15m');
         let refreshToken = generateAccessToken(user.toJSON(), process.env.REFRESH_TOKEN_SECRET, '7d');
         let userId = user.get('id');
         res.json({

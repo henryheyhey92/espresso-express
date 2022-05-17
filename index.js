@@ -130,6 +130,7 @@ async function main() {
 
 main();
 
+//need to change when deploy to heroku
 app.listen(3000, () => {
     console.log("Server has started");
 })

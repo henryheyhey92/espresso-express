@@ -73,6 +73,7 @@ router.get('/', checkIfAllAuthenticated, async (req, res) => {
                         .where('certificate_id', 'in', form.data.certificates.split(','))
                     // is eqv:
                     // select * from products JOIN products_tags ON products.id 
+                    //select * from products JOIN certificates_products ON products.id = product_id where certificate_id in (data)
                 }
 
                 if (form.data.origins) {

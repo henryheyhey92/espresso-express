@@ -7,16 +7,12 @@ const getAllProducts = async () => {
 
 
 async function getProductById(productId) {
-    console.log("enter data layer get Product by id");
-    console.log(productId);
     const product = await Product.where({
         'id': productId
     }).fetch({
         'require': true,
         'withRelated': ['certificates', 'roastType', 'origins']
     })
-    console.log("get by id product");
-    console.log(product);
     return product;
 }
 
@@ -59,6 +55,11 @@ async function updateProductQuantity(productId, updateQty){
     return upDatedQuantity;
 }
 
+async function getProductByText(searchText){
+    const searchResult = await knex('products').whereILike('product_name', '%'+searchText+'%');
+    return searchResult;
+}
+
 module.exports = {
     getProductById, 
     getAllCerts, 
@@ -67,5 +68,6 @@ module.exports = {
     getAllProducts, 
     getAllProductsName,
     getProductQuantity,
-    updateProductQuantity
+    updateProductQuantity,
+    getProductByText
 }

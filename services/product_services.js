@@ -21,9 +21,13 @@ class ProductServices {
         return await productDataLayer.updateProductQuantity(product_id, updateQty);
     }
 
-    // async getProductByName(product_name){
-    //     return await productDataLayer.getProductByName(product_name);
-    // }
+    async getProductByText(search_text){
+        return await productDataLayer.getProductByText(search_text);
+    }
+
+    async getAllProducts(){
+        return await productDataLayer.getAllProducts();
+    }
 }
 
 module.exports = ProductServices

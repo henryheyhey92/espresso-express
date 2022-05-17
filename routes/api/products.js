@@ -8,9 +8,9 @@ const { bootstrapField, createProductForm, createSearchForm } = require('../../f
 
 
 router.get('/', async (req, res) => {
-    try{
+    try {
         res.send(await productDataLayer.getAllProducts())
-    }catch(e){
+    } catch (e) {
         res.status(500);
         res.json({
             'message': "Internal server error. Please contact administrator"
@@ -19,17 +19,44 @@ router.get('/', async (req, res) => {
     }
 })
 
-router.get('/:id', async (req, res) => {
-    try{
-        console.log("enter get item by id");
+router.post('/search/text', async (req, res) => {
+    try {
+        let keyword  = req.body.keyword;
+        let product = new ProductServices();
+        if (keyword === "" || keyword.length < 0) {
+            res.send(await product.getAllProducts())
+        } else {
+            let response = await product.getProductByText(keyword);
+            if (response) {
+                res.send(response)
+            } else {
+                res.status(400);
+                res.json({
+                    'message': "Bad request (get product by keyword api)"
+                })
+            }
+        }
+
+    } catch (e) {
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator (get product by keyword api)"
+        })
+        console.log(e);
+    }
+})
+
+
+router.get('/getId/:id', async (req, res) => {
+    try {
+        console.log("enter get item by id 123");
         let product = new ProductServices();
         let response = await product.getProductById(req.params.id);
         console.log("get by id response");
-        console.log(response)
-        if(response){
+        if (response) {
             res.send(response)
         }
-    }catch (e){
+    } catch (e) {
         res.status(500);
         res.json({
             'message': "Internal server error. Please contact administrator (get product by id api)"

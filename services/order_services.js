@@ -37,6 +37,9 @@ class OrderServices {
         await orderDataLayer.saveOrder(orderObj);
     }
 
+    async getAllOrderStatus(){
+        return await orderDataLayer.getAllOrderStatus();
+    }
    
 
 }

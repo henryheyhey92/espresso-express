@@ -29,7 +29,7 @@ const RoastType = bookshelf.model('RoastType', {
 const Certificate = bookshelf.model('Certificate',{
     tableName: 'certificates',
     products() {
-        return this.belongsToMany('Product') // 1 cert have many product 
+        return this.belongsToMany('Product'); // 1 cert have many product 
     }
 })
 
@@ -43,26 +43,36 @@ const User = bookshelf.model('User', {
 const Origin = bookshelf.model('Origin', {
     tableName: 'origins',
     products(){
-        return this.belongsToMany('Product')
+        return this.belongsToMany('Product');
     }
 })
 
 const CartItem = bookshelf.model('CartItem', {
     tableName: 'cart_items',
     product() {
-         return this.belongsTo('Product')
+         return this.belongsTo('Product');
     }
 })
 
 const Order = bookshelf.model('Order', {
     tableName: 'orders',
     product(){
-        return this.belongsTo('Product')
+        return this.belongsTo('Product');
     },
     user(){
-        return this.belongsTo('User')
+        return this.belongsTo('User');
+    },
+    orderStatus(){
+        return this.belongsTo('OrderStatus');
     }
 
+})
+
+const OrderStatus = bookshelf.model('OrderStatus',{
+    tableName: 'order_status',
+    orders(){
+        return this.hasMany('Order');
+    }
 })
 
 const BlacklistedToken = bookshelf.model('BlacklistedToken',{
@@ -70,4 +80,4 @@ const BlacklistedToken = bookshelf.model('BlacklistedToken',{
 })
 
 
-module.exports = { Product, RoastType, Certificate, User, Origin, CartItem, Order, BlacklistedToken};
+module.exports = { Product, RoastType, Certificate, User, Origin, CartItem, Order, OrderStatus, BlacklistedToken};

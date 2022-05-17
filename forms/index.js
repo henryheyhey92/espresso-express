@@ -207,7 +207,7 @@ const createSearchForm = (roast_type, certificates, origins) => {
     })
 }
 
-const createOrderForm = (allProduct, allUser) => {
+const createOrderForm = (allProduct, allUser, allOrderStatus) => {
     return forms.create({
         'product_name': fields.string({
             'label': 'Product Name',
@@ -223,17 +223,6 @@ const createOrderForm = (allProduct, allUser) => {
             'widget': widgets.select(),
             'choices': allUser
         }),
-        'status': fields.string({
-            'label': 'Status',
-            'required': true,
-            'errorAfterField': true,
-            'widget': widgets.select(),
-            'choices': {
-                1 : "complete",
-                2 : "incomplete",
-                3 : "delievered"
-            }
-        }),
         'shipping_address': fields.string({
             'required': true,
             'errorAfterField': true,
@@ -243,28 +232,38 @@ const createOrderForm = (allProduct, allUser) => {
             'required': true,
             'errorAfterField': true,
             'validators': [validators.integer(), validators.min(0)]
-        })
-    })
-}
-
-
-const updateStatusForm = () => {
-    return forms.create({
-        'status': fields.string({
-            'label': 'Status',
+        }),
+        'status_id': fields.string({
+            'label':'Status',
             'required': true,
             'errorAfterField': true,
+            'cssClasses': {
+                label: ['form-label']
+            },
             'widget': widgets.select(),
-            'choices': {
-                1 : "complete",
-                2 : "incomplete",
-                3 : "delievered"
-            }
+            'choices': allOrderStatus
+        })
+
+    })
+}
+
+
+const updateStatusForm = (allOrderStatus) => {
+    return forms.create({
+        'status_id': fields.string({
+            'label':'Status',
+            'required': true,
+            'errorAfterField': true,
+            'cssClasses': {
+                label: ['form-label']
+            },
+            'widget': widgets.select(),
+            'choices': allOrderStatus
         })
     })
 }
 
-const createSearchOrderForm = (allProduct, allUser) => {
+const createSearchOrderForm = (allProduct, allUser, allOrderStatus) => {
     return forms.create({
         // <input type="text" name="name"/>
         'product_name': fields.string({
@@ -280,17 +279,15 @@ const createSearchOrderForm = (allProduct, allUser) => {
             'widget': widgets.select(),
             'choices': allUser
         }),
-        'status': fields.string({
-            'label': 'Status',
-            'required': false,
+        'status_id': fields.string({
+            'label':'Status',
+            'required': true,
             'errorAfterField': true,
+            'cssClasses': {
+                label: ['form-label']
+            },
             'widget': widgets.select(),
-            'choices': {
-                0 : "----",
-                1 : "complete",
-                2 : "incomplete",
-                3 : "delievered"
-            }
+            'choices': allOrderStatus
         })
     })
 }

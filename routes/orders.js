@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { Product, RoastType, Certificate, Origin, Order } = require('../models');
+const { Product, RoastType, Certificate, Origin, Order, OrderStatus } = require('../models');
 const OrderServices = require('../services/order_services');
 const UserServices = require('../services/user_services');
 const ProductServices = require('../services/product_services');
@@ -18,11 +18,16 @@ router.get('/all/', async (req, res) => {
         //create order obj
         const allProduct = await new ProductServices().getProductName();
         const allUser = await new UserServices().getAllUserName();
+        const allOrderStatus = await new OrderServices().getAllOrderStatus();
+        console.log("all user status data");
+        console.log(allUser);
+        console.log("allOrder status data");
+        console.log(allOrderStatus);
         allUser.unshift(["", "All"]);
         let order = new OrderServices();
         let orderResult = await order.getAllUserOrder();
 
-        let searchForm = createSearchOrderForm(allProduct, allUser);
+        let searchForm = createSearchOrderForm(allProduct, allUser, allOrderStatus);
         let q = Order.collection();
 
         searchForm.handle(req, {
@@ -47,11 +52,11 @@ router.get('/all/', async (req, res) => {
                 //     q = q.query('join', 'roast_type', 'roast_type_id', 'roast_type.id')
                 //         .where('roast_type.name', 'like', '%' + req.query.roast_type_id + '%')
                 // }
-                if (form.data.status) {
-                    let status = (form.data.status === "1" ? "complete" : ((form.data.status === "2") ? "incomplete" : (form.data.status === "3") ? "delievered" : ""))
-                    if(status !== ""){
-                        q = q.where('status', 'like', status)
-                    }
+                if (form.data.status_id) {
+                    // let status = (form.data.status === "1" ? "complete" : ((form.data.status === "2") ? "incomplete" : (form.data.status === "3") ? "delievered" : ""))
+                    // if(status !== ""){
+                        q = q.where('status_id', 'like', form.data.status_id)
+                    // }
                 }
                 
                 // form.data.purchaser_name is the id
@@ -107,7 +112,8 @@ router.get('/add', async (req, res) => {
     try {
         const allProduct = await new ProductServices().getProductName();
         const allUser = await new UserServices().getAllUserName();
-        const orderForm = createOrderForm(allProduct, allUser);
+        const allOrderStatus = await new OrderServices().getAllOrderStatus();
+        const orderForm = createOrderForm(allProduct, allUser, allOrderStatus);
 
         res.render('orders/create.hbs', {
             'form': orderForm.toHTML(bootstrapField)
@@ -125,7 +131,8 @@ router.post('/add', async (req, res) => {
     try {
         const allProduct = await new ProductServices().getProductName();
         const allUser = await new UserServices().getAllUserName();
-        const orderForm = createOrderForm(allProduct, allUser);
+        const allOrderStatus = await new OrderServices().getAllOrderStatus();
+        const orderForm = createOrderForm(allProduct, allUser, allOrderStatus);
 
         orderForm.handle(req, {
             'success': async (form) => {
@@ -162,7 +169,7 @@ router.post('/add', async (req, res) => {
                         "product_id": form.data.product_name,
                         "user_id": form.data.purchaser_name,
                         "order_date": new Date(),
-                        "status": form.data.status === 1 ? "complete" : ((form.data.status === 2) ? "incomplete" : "delievered"),
+                        "status_id": form.data.status_id, // === 1 ? "complete" : ((form.data.status === 2) ? "incomplete" : "delievered"),
                         'shipping_address': form.data.shipping_address,
                         "quantity": form.data.quantity,
                         "product_name": productName,
@@ -200,11 +207,13 @@ router.get('/:id/update', async (req, res) => {
     try {
         const allProduct = await new ProductServices().getProductName();
         const allUser = await new UserServices().getAllUserName();
+        const allOrderStatus = await new OrderServices().getAllOrderStatus();
         let orderObj = new OrderServices();
         let orderRes = await orderObj.getOrderById(req.params.id);
-        const form = updateStatusForm()
-        let temp = orderRes.get('status')
-        form.fields.status.value = (temp === "complete" ? 1 : ((temp === "incomplete") ? 2 : 3));
+        const form = updateStatusForm(allOrderStatus)
+        //take note of the changes
+        let temp = orderRes.get('status_id'); //take note
+        form.fields.status_id.value = temp; //(temp === "complete" ? 1 : ((temp === "incomplete") ? 2 : 3));
         res.render('orders/update', {
             'orders': orderRes.toJSON(),
             'form': form.toHTML(bootstrapField)
@@ -223,15 +232,20 @@ router.post('/:id/update', async (req, res) => {
     try {
         const allProduct = await new ProductServices().getProductName();
         const allUser = await new UserServices().getAllUserName();
+        const allOrderStatus = await new OrderServices().getAllOrderStatus();
+
         let orderObj = new OrderServices();
         let orderRes = await orderObj.getOrderById(req.params.id);
-        const form = updateStatusForm();
+        console.log("orderRes info");
+        console.log(orderRes);
+        const form = updateStatusForm(allOrderStatus);
 
         form.handle(req, {
             'success': async (form) => {
                 // form.data.status === 1 ? "complete" : ((form.data.status === 2) ? "incomplete" : "delievered")
-                console.log(typeof(form.data.status))
-                orderRes.set("status", (form.data.status === "1" ? "complete " : ((form.data.status === "2") ? "incomplete" : "delievered")));
+                console.log(typeof(form.data.status_id))
+                //need to take note
+                orderRes.set("status_id", form.data.status_id); //(form.data.status === "1" ? "complete " : ((form.data.status === "2") ? "incomplete" : "delievered"))
                 orderRes.save();
                 res.redirect('/orders/all');
             },
@@ -283,6 +297,13 @@ router.post('/:id/delete', async (req, res) => {
         console.log(e);
     }
 })
+
+// router.post('/get/status', async (req, res) => {
+//     const allOrderStatus = await OrderStatus.fetchAll().map((status) => {
+//         return [status.get('id'), category.get('status_type')]
+//     })
+//     return allOrderStatus
+// })
 
 
 

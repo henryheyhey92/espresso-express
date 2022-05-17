@@ -1,5 +1,5 @@
 const async = require('hbs/lib/async');
-const { Product, RoastType, Certificate, Origin, User, Order} = require('../models')
+const { Product, RoastType, Certificate, Origin, User, Order, OrderStatus} = require('../models')
 
 async function getUserOrder(userId){
     const order = await Order.where({
@@ -27,6 +27,15 @@ async function getOrderById(orderId){
     return order;
 }
 
+async function getAllOrderStatus(){
+    const allOrderStatus = await OrderStatus.fetchAll().map((status) => {
+        return [status.get('id'), status.get('status_type')]
+    })
+    console.log("order layer of get order status");
+    console.log(allOrderStatus);
+    return allOrderStatus
+}
+
 module.exports = {
-    getUserOrder, getAllUserOrder, saveOrder, getOrderById
+    getUserOrder, getAllUserOrder, saveOrder, getOrderById, getAllOrderStatus
 }

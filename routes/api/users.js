@@ -6,6 +6,7 @@ const { checkIfAuthenticatedJWT } = require('../../middlewares');
 const { User, BlacklistedToken } = require('../../models');
 
 
+
 const generateAccessToken = (user, secret, expiresIn) => {
     //three arguments
     return jwt.sign({
@@ -24,6 +25,43 @@ const getHashedPassword = (password) => {
     const hash = sha256.update(password).digest('base64');
     return hash;
 }
+
+router.post('/register/user', async (req, res) => {
+    console.log("enter reg user");
+    console.log(req.body);
+    try {
+        let { first_name, last_name, address, country, email, phone, password, confirm_password } = req.body;
+        const user = new User({
+            'first_name': first_name,
+            'last_name': last_name,
+            'address': address,
+            'country': country,
+            'email': email,
+            'phone': phone,
+            'password': getHashedPassword(password),
+            'confirm_password': getHashedPassword(confirm_password),
+            'user_type': 'U'
+        });
+        if(password === confirm_password){
+            await user.save();
+            res.send(true);
+        }else{
+            res.sendStatus(401);
+            res.send(false);
+            res.json({
+                'message': 'error in sign up'
+            })
+        }
+      
+    } catch (e) {
+        res.status(500);
+        res.json({
+            'message': "Internal server error. Please contact administrator (user sign up issue)"
+        })
+        console.log(e);
+    }
+
+})
 
 
 router.post('/login', async (req, res) => {
@@ -57,7 +95,7 @@ router.get('/profile', checkIfAuthenticatedJWT, async (req, res) => {
 
 //allow the client to get a new access token 
 //this part need in the front end need set a timer that uses axios 
-router.post('/refresh', async(req,res)=>{
+router.post('/refresh', async (req, res) => {
     let refreshToken = req.body.refreshToken;
     console.log("This is refresh token");
     console.log(refreshToken);
@@ -74,7 +112,7 @@ router.post('/refresh', async(req,res)=>{
 
 
     // if the refresh token has already been blacklisted
-    if (blacklistedToken) { 
+    if (blacklistedToken) {
         res.status(401);
         return res.send('The refresh token has already expired')
     }
@@ -82,7 +120,7 @@ router.post('/refresh', async(req,res)=>{
 
 
 
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user)=>{
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
         if (err) {
             return res.sendStatus(403);
         }
@@ -99,15 +137,15 @@ router.post('/logout', async (req, res) => {
     if (!refreshToken) {
         res.sendStatus(401);
     } else {
-            console.log("enter logout")
-            jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET,async (err, user) => {
+        console.log("enter logout")
+        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, user) => {
             if (err) {
                 return res.sendStatus(403);
             }
 
             const token = new BlacklistedToken();
             token.set('token', refreshToken);
-            token.set('date_created', new Date().toLocaleString("en-sg", {timeZone: "Asia/Singapore"})); // use current date
+            token.set('date_created', new Date().toLocaleString("en-sg", { timeZone: "Asia/Singapore" })); // use current date
             await token.save();
             res.send({
                 'message': 'logged out'

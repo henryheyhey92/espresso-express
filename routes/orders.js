@@ -15,7 +15,6 @@ const { knex } = require("../bookshelf");
 
 router.get('/all/', async (req, res) => {
     try {
-        //create order obj
         const allProduct = await new ProductServices().getProductName();
         const allUser = await new UserServices().getAllUserName();
         const allOrderStatus = await new OrderServices().getAllOrderStatus();
@@ -48,17 +47,15 @@ router.get('/all/', async (req, res) => {
                     q = q.where('product_name', 'like', '%' + req.query.product_name + '%')
                 }
 
+                //example code
                 // if (form.data.roast_type_id && form.data.roast_type_id != "0") {
                 //     q = q.query('join', 'roast_type', 'roast_type_id', 'roast_type.id')
                 //         .where('roast_type.name', 'like', '%' + req.query.roast_type_id + '%')
                 // }
                 if (form.data.status_id) {
-                    // let status = (form.data.status === "1" ? "complete" : ((form.data.status === "2") ? "incomplete" : (form.data.status === "3") ? "delievered" : ""))
-                    // if(status !== ""){
-                        q = q.where('status_id', 'like', form.data.status_id)
-                    // }
+                    q = q.where('status_id', 'like', form.data.status_id)
                 }
-                
+
                 // form.data.purchaser_name is the id
                 if (form.data.purchaser_name) {
                     q = q.where('user_id', '=', form.data.purchaser_name)
@@ -73,31 +70,6 @@ router.get('/all/', async (req, res) => {
 
             }
         })
-
-        // if(orderResult){
-
-        //     //get user name
-        //     console.log("userinfo result");
-        //     let user = new UserServices();
-        //     let userInfo = await user.getUserById(req.session.user.id);
-
-
-        //     console.log(userInfo.toJSON());
-        //     console.log("orderinfo result");
-        //     let orderResultJSON = orderResult.toJSON();
-        //     orderResultJSON.forEach(element => {
-        //         //append product name 
-        //         Object.assign(element, {product_name:userInfo.toJSON().first_name});
-        //         Object.assign(element, )
-        //     });
-        //     console.log(orderResultJSON);
-        // }
-
-        // res.status(200);
-        // // res.send(orderResult);
-        // res.render('orders/index', {
-        //     'orders': orderResult.toJSON()
-        // })
 
     } catch (e) {
         res.status(500);
@@ -140,35 +112,32 @@ router.post('/add', async (req, res) => {
                 let purchaserName = null;
                 let checkQty = null;
                 let temp = null;
-                console.log("product name")
-                console.log(form.data.product_name)
+               
                 temp = await knex.select('product_name').from('products').where({ id: form.data.product_name });
-                temp.forEach(element => {
-                    productName = element.product_name
-                });
-                // console.log(productId)
+                
+                // example code
+                // temp.forEach(element => {
+                //     productName = element.product_name
+                // });
+                productName = temp[0].product_name
+                
 
                 temp = await knex.select('first_name').from('users').where({ id: form.data.purchaser_name });
-                temp.forEach(element => {
-                    purchaserName = element.first_name
-                })
-                // console.log(userId)
+                purchaserName = temp[0].first_name
+                
 
                 temp = await knex.select('qty')
                     .from('products')
                     .where({ id: form.data.product_name })
                     .andWhere('qty', '>', parseInt(form.data.quantity));
+                
+                checkQty = temp[0].qty
 
-                temp.forEach(element => {
-                    checkQty = element.qty
-                })
-
-
-                if (checkQty) {
+                if (checkQty && productName && purchaserName) {
                     let addOrder = {
                         "product_id": form.data.product_name,
                         "user_id": form.data.purchaser_name,
-                        "order_date": new Date(),
+                        "order_date": new Date().toLocaleString("en-sg", {timeZone: "Asia/Singapore"}),
                         "status_id": form.data.status_id, // === 1 ? "complete" : ((form.data.status === 2) ? "incomplete" : "delievered"),
                         'shipping_address': form.data.shipping_address,
                         "quantity": form.data.quantity,
@@ -243,7 +212,7 @@ router.post('/:id/update', async (req, res) => {
         form.handle(req, {
             'success': async (form) => {
                 // form.data.status === 1 ? "complete" : ((form.data.status === 2) ? "incomplete" : "delievered")
-                console.log(typeof(form.data.status_id))
+                console.log(typeof (form.data.status_id))
                 //need to take note
                 orderRes.set("status_id", form.data.status_id); //(form.data.status === "1" ? "complete " : ((form.data.status === "2") ? "incomplete" : "delievered"))
                 orderRes.save();

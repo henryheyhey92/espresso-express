@@ -89,7 +89,9 @@ router.get('/:user_id', checkIfAuthenticatedJWT, async (req, res) => {
 //When payment is successful
 router.get('/success', async function (req, res) {
     try {
-        let date = new Date();
+        let date = new Date().toLocaleString("en-sg", {
+            timeZone: "Asia/Singapore",
+          });
         let orderedProducts = [];
 
         const cart = new CartServices(req.session.user.id);
@@ -122,8 +124,8 @@ router.get('/success', async function (req, res) {
                 // save order 
                 order.set('product_id', element.product_id);
                 order.set('user_id', req.session.user.id);
-                order.set('order_date', date.toString());
-                order.set('status', stripeData.status);
+                order.set('order_date', date);
+                order.set('status_id', 1);  //default stripeData.status
                 order.set('shipping_address', userRes.toJSON().address);
                 order.set('quantity', element.quantity);
                 order.set('product_name', productRes.toJSON().product_name);
@@ -193,7 +195,7 @@ router.post('/process_payment', express.raw({
 
         //start process save order 
         let date = new Date().toLocaleString("en-sg", {
-            timeZone: "Asia/Singapore",
+            timeZone: "Asia/Singapore"
           });
         let orderedProducts = [];
 

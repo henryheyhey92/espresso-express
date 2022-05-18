@@ -107,7 +107,7 @@ router.post('/logout', async (req, res) => {
 
             const token = new BlacklistedToken();
             token.set('token', refreshToken);
-            token.set('date_created', new Date()); // use current date
+            token.set('date_created', new Date().toLocaleString("en-sg", {timeZone: "Asia/Singapore"})); // use current date
             await token.save();
             res.send({
                 'message': 'logged out'

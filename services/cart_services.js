@@ -47,5 +47,9 @@ class CartServices {
     async getCurrProductCartQuantity(product_id){
         return await cartDataLayer.getCurrProductCartQuantity(product_id, this.user_id);
     }
+
+    async checkCartIfContainProduct(product_id){
+        return await cartDataLayer.checkCartIfContainProduct(product_id);
+    }
 }
 module.exports = CartServices;

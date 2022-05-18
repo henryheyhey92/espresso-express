@@ -4,6 +4,7 @@ const router = express.Router();
 //#1 import in the Product model
 const { Product, RoastType, Certificate, Origin } = require('../models');
 const dataLayer = require('../dal/products');
+const CartServices = require('../services/cart_services');
 
 //import in the Forms
 const { bootstrapField, createProductForm, createSearchForm } = require('../forms');
@@ -58,7 +59,7 @@ router.get('/', checkIfAllAuthenticated, async (req, res) => {
                 if (form.data.roast_type_id) {
                     q = q.where('roast_type_id', '=', form.data.roast_type_id)
                 }
-                
+
                 if (form.data.min_price) {
                     q = q.where('price', '>=', form.data.min_price)
                 }
@@ -230,7 +231,7 @@ router.get('/:id/update', checkIfManagerOwnerAuthenticated, async (req, res) => 
 })
 
 
-router.post('/:id/update', checkIfManagerOwnerAuthenticated ,async (req, res) => {
+router.post('/:id/update', checkIfManagerOwnerAuthenticated, async (req, res) => {
     try {
         const product = await dataLayer.getProductById(req.params.id);
         const allRoastType = await dataLayer.getAllRoastType();
@@ -301,13 +302,22 @@ router.get('/:id/delete', checkIfManagerOwnerAuthenticated, async (req, res) => 
 
 router.post('/:id/delete', checkIfManagerOwnerAuthenticated, async (req, res) => {
     try {
-        const product = await dataLayer.getProductById(req.params.id);
-        await product.destroy();
-        res.redirect('/products');
+        const cart = new CartServices()
+        const cartCheck = await cart.checkCartIfContainProduct(req.params.id);
+        let product = await dataLayer.getProductById(req.params.id);
+        if (cartCheck.toJSON().length === 0) {
+            await product.destroy();
+            res.redirect('/products');
+        }else{
+            req.flash("error_messages", `Product ${product.get('product_name')} is in cart and cannot be deleted`)
+
+            res.redirect('/products');
+        }
+
     } catch (e) {
         res.status(500);
         res.json({
-            'message': "Internal server error. Please contact administrator"
+            'message': "Internal server error. Please contact administrator (delete product route)"
         })
         console.log(e);
     }

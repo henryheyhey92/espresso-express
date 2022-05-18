@@ -11,6 +11,15 @@ const getCart = async (userId) => {
         });
 }
 
+const checkCartIfContainProduct = async (productId) => {
+    return await CartItem.where({
+        'product_id': productId
+    }).fetchAll({
+        require: false,
+        withRelated: ['product', 'product.roastType']
+    })
+}
+
 const getCartItemByUserAndProduct = async (userId, productId) => {
     return await CartItem.where({
         'user_id': userId,
@@ -92,5 +101,6 @@ module.exports = {
     removeFromCart,
     updateQuantity,
     removeAllFromCart,
-    getCurrProductCartQuantity
+    getCurrProductCartQuantity,
+    checkCartIfContainProduct
 }

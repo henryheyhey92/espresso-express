@@ -18,10 +18,27 @@ router.get('/all/', async (req, res) => {
         const allProduct = await new ProductServices().getProductName();
         const allUser = await new UserServices().getAllUserName();
         const allOrderStatus = await new OrderServices().getAllOrderStatus();
-        
+
         allUser.unshift(["", "All"]);
+        allOrderStatus.unshift(["", "All"]);
         let order = new OrderServices();
         let orderResult = await order.getAllUserOrder();
+        
+        //append product status
+        let appendOrderResult = orderResult.toJSON().map( item => {
+            let status_name = null
+            if (item.status_id === 1) {
+                status_name = "paid"
+            } else if (item.status_id === 2) {
+                status_name = "processing"
+            } else if (item.status_id === 3) {
+                status_name = "shipped"
+            } else {
+                status_name = "completed"
+            }
+            Object.assign(item, { "status_type": status_name });
+            return item
+        })
 
         let searchForm = createSearchOrderForm(allProduct, allUser, allOrderStatus);
         let q = Order.collection();
@@ -29,13 +46,14 @@ router.get('/all/', async (req, res) => {
         searchForm.handle(req, {
             'empty': async (form) => {
                 res.render('orders/index', {
-                    'orders': orderResult.toJSON(),
+                    'orders': appendOrderResult,
                     'form': form.toHTML(bootstrapField)
+
                 })
             },
             'error': async (form) => {
                 res.render('orders/index', {
-                    'orders': orderResult.toJSON(),
+                    'orders': appendOrderResult,
                     'form': form.toHTML(bootstrapField)
                 })
             },
@@ -60,8 +78,26 @@ router.get('/all/', async (req, res) => {
 
 
                 let order = await q.fetch();
+
+                let OrderResult = order.toJSON().map( item => {
+                    let status_name = null
+                    if (item.status_id === 1) {
+                        status_name = "paid"
+                    } else if (item.status_id === 2) {
+                        status_name = "processing"
+                    } else if (item.status_id === 3) {
+                        status_name = "shipped"
+                    } else {
+                        status_name = "completed"
+                    }
+                    Object.assign(item, { "status_type": status_name });
+                    return item
+                })
+
+
+
                 res.render('orders/index', {
-                    'orders': order.toJSON(),
+                    'orders': OrderResult,
                     'form': form.toHTML(bootstrapField)
                 })
 
@@ -133,10 +169,10 @@ router.post('/add', async (req, res) => {
                 if (checkQty && productName && purchaserName) {
                     let product = new ProductServices(form.data.product_name);
                     let quantity = await product.getProductQuantity();
-                    
+
                     let updateQuantity = quantity[0].qty - parseInt(form.data.quantity);
                     await product.updateProductQuantity(form.data.product_name, updateQuantity);
-                    
+
 
                     let addOrder = {
                         "product_id": form.data.product_name,
@@ -209,7 +245,7 @@ router.post('/:id/update', async (req, res) => {
 
         let orderObj = new OrderServices();
         let orderRes = await orderObj.getOrderById(req.params.id);
-       
+
         const form = updateStatusForm(allOrderStatus);
 
         form.handle(req, {
@@ -260,24 +296,24 @@ router.post('/:id/delete', async (req, res) => {
         //get order
         let orderObj = new OrderServices();
         const orderRes = await orderObj.getOrderById(req.params.id);
-        
+
         //get product and qunatity
         let product = new ProductServices(orderRes.toJSON().product_id);
-        
+
         let quantity = await product.getProductQuantity();
-        
+
         //update inventory product
         let updateQuantity = quantity[0].qty + orderRes.toJSON().quantity;
         let updateRes = await product.updateProductQuantity(orderRes.toJSON().product_id, updateQuantity);
-        
-        if(updateRes){
+
+        if (updateRes) {
             await orderRes.destroy();
             res.redirect('/orders/all');
-        }else{
+        } else {
             req.flash("error_messages", `Order cannot be deleted`)
             res.redirect('/orders/all');
         }
-       
+
     } catch (e) {
         res.status(500);
         res.json({

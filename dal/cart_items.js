@@ -5,7 +5,7 @@ const getCart = async (userId) => {
     return await CartItem.collection()
         .where({
             'user_id': userId
-        }).fetch({
+        }).orderBy('id').fetch({
             require: false, //for case user never add anything
             withRelated: ['product', 'product.roastType']
         });

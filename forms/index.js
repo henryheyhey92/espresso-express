@@ -281,7 +281,7 @@ const createSearchOrderForm = (allProduct, allUser, allOrderStatus) => {
         }),
         'status_id': fields.string({
             'label':'Status',
-            'required': true,
+            'required': false,
             'errorAfterField': true,
             'cssClasses': {
                 label: ['form-label']

@@ -87,82 +87,82 @@ router.get('/:user_id', checkIfAuthenticatedJWT, async (req, res) => {
 })
 
 //When payment is successful
-router.get('/success', async function (req, res) {
-    try {
-        let date = new Date().toLocaleString("en-sg", {
-            timeZone: "Asia/Singapore",
-          });
-        let orderedProducts = [];
+// router.get('/success', async function (req, res) {
+//     try {
+//         let date = new Date().toLocaleString("en-sg", {
+//             timeZone: "Asia/Singapore",
+//           });
+//         let orderedProducts = [];
 
-        const cart = new CartServices(req.session.user.id);
-        let items = await cart.getCart();
+//         const cart = new CartServices(req.session.user.id);
+//         let items = await cart.getCart();
 
-        let result;
-        for (let item of items) {
-            result = await cart.remove(item.get('product_id'))
-        }
+//         let result;
+//         for (let item of items) {
+//             result = await cart.remove(item.get('product_id'))
+//         }
 
-        //saving details to order table
+//         //saving details to order table
         
-        //get user address
-        let user = new UserServices();
-        let userAddress = null;
-        let userData = await user.getUser(req.session.user.id)
-        userAddress = userData.attributes.address
-        console.log(userAddress);
-        //get product id
-        if (stripeData) {
-            console.log("Enter save order process");
-            orderedProducts = JSON.parse(stripeData.metadata.orders);
-            for(let element of orderedProducts){
-                const order = new Order();
-                const product = new ProductServices()
-                let productRes = await product.getProductById(element.product_id);
-                const user = new UserServices();
-                let userRes = await user.getUserById(req.session.user.id);
-                console.log(userRes.toJSON().address);
-                // save order 
-                order.set('product_id', element.product_id);
-                order.set('user_id', req.session.user.id);
-                order.set('order_date', date);
-                order.set('status_id', 1);  //default stripeData.status
-                order.set('shipping_address', userRes.toJSON().address);
-                order.set('quantity', element.quantity);
-                order.set('product_name', productRes.toJSON().product_name);
-                order.set('product_image_url', productRes.toJSON().image_url);
-                order.set('purchaser_name', userRes.toJSON().first_name); 
-                await order.save();
-            }
-        }
+//         //get user address
+//         let user = new UserServices();
+//         let userAddress = null;
+//         let userData = await user.getUser(req.session.user.id)
+//         userAddress = userData.attributes.address
+//         console.log(userAddress);
+//         //get product id
+//         if (stripeData) {
+//             console.log("Enter save order process");
+//             orderedProducts = JSON.parse(stripeData.metadata.orders);
+//             for(let element of orderedProducts){
+//                 const order = new Order();
+//                 const product = new ProductServices()
+//                 let productRes = await product.getProductById(element.product_id);
+//                 const user = new UserServices();
+//                 let userRes = await user.getUserById(req.session.user.id);
+//                 console.log(userRes.toJSON().address);
+//                 // save order 
+//                 order.set('product_id', element.product_id);
+//                 order.set('user_id', req.session.user.id);
+//                 order.set('order_date', date);
+//                 order.set('status_id', 1);  //default stripeData.status
+//                 order.set('shipping_address', userRes.toJSON().address);
+//                 order.set('quantity', element.quantity);
+//                 order.set('product_name', productRes.toJSON().product_name);
+//                 order.set('product_image_url', productRes.toJSON().image_url);
+//                 order.set('purchaser_name', userRes.toJSON().first_name); 
+//                 await order.save();
+//             }
+//         }
 
        
 
-        //Need to clear the stripe data
-        stripeData = null;
+//         //Need to clear the stripe data
+//         stripeData = null;
         
 
-        if (result) {
-            res.render('checkout/success.hbs');
-        } else {
-            res.status(405);
-            res.json({
-                'message': "method not allow"
-            })
-        }
+//         if (result) {
+//             res.render('checkout/success.hbs');
+//         } else {
+//             res.status(405);
+//             res.json({
+//                 'message': "method not allow"
+//             })
+//         }
 
-    } catch (e) {
-        res.status(500);
-        res.json({
-            'message': "Internal server error. Please contact administrator (success api)"
-        })
-        console.log(e);
-    }
+//     } catch (e) {
+//         res.status(500);
+//         res.json({
+//             'message': "Internal server error. Please contact administrator (success api)"
+//         })
+//         console.log(e);
+//     }
 
-})
+// })
 
-router.get('/cancelled', function (req, res) {
-    res.render('checkout/cancelled')
-})
+// router.get('/cancelled', function (req, res) {
+//     res.render('checkout/cancelled')
+// })
 
 
 //process payment api
@@ -229,8 +229,8 @@ router.post('/process_payment', express.raw({
                 // save order 
                 order.set('product_id', element.product_id);
                 order.set('user_id', stripeSession.metadata.user_id);
-                order.set('order_date', date.toString());
-                order.set('status', stripeSession.payment_status);
+                order.set('order_date', date);
+                order.set('status_id', 1); //stripeSession.payment_status
                 order.set('shipping_address', userRes.toJSON().address);
                 order.set('quantity', element.quantity);
                 order.set('product_name', productRes.toJSON().product_name);

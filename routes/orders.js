@@ -133,16 +133,10 @@ router.post('/add', async (req, res) => {
                 if (checkQty && productName && purchaserName) {
                     let product = new ProductServices(form.data.product_name);
                     let quantity = await product.getProductQuantity();
-                    console.log("get product quantity");
-                    console.log(quantity[0].qty);
-                    console.log("get form quantity");
-                    console.log(form.data.quantity);
+                    
                     let updateQuantity = quantity[0].qty - parseInt(form.data.quantity);
-                    let updateRes = await product.updateProductQuantity(form.data.product_name, updateQuantity);
-                    console.log("updateQuantity");
-                    console.log(updateQuantity);
-                    console.log("update result");
-                    console.log(updateRes);
+                    await product.updateProductQuantity(form.data.product_name, updateQuantity);
+                    
 
                     let addOrder = {
                         "product_id": form.data.product_name,
@@ -215,8 +209,7 @@ router.post('/:id/update', async (req, res) => {
 
         let orderObj = new OrderServices();
         let orderRes = await orderObj.getOrderById(req.params.id);
-        console.log("orderRes info");
-        console.log(orderRes);
+       
         const form = updateStatusForm(allOrderStatus);
 
         form.handle(req, {
@@ -267,19 +260,16 @@ router.post('/:id/delete', async (req, res) => {
         //get order
         let orderObj = new OrderServices();
         const orderRes = await orderObj.getOrderById(req.params.id);
-        console.log("order Res");
-        console.log(orderRes.toJSON());
+        
         //get product and qunatity
         let product = new ProductServices(orderRes.toJSON().product_id);
         
         let quantity = await product.getProductQuantity();
-        console.log("quantity");
-        console.log(quantity);
+        
         //update inventory product
         let updateQuantity = quantity[0].qty + orderRes.toJSON().quantity;
         let updateRes = await product.updateProductQuantity(orderRes.toJSON().product_id, updateQuantity);
-        console.log("Update Res");
-        console.log(updateRes);
+        
         if(updateRes){
             await orderRes.destroy();
             res.redirect('/orders/all');

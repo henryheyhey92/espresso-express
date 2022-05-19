@@ -1,4 +1,4 @@
-# Espresso Express RESTFUL API and HBS, Project - 02
+# Espresso Express RESTFUL API and HBS, Project - 03
 
 This is the Next-Flavour project built with Express.js. and MongoDB for Project 2. 
 The front-end react project can be found [https://github.com/henryheyhey92/next-flavour](https://github.com/henryheyhey92/next-flavour)

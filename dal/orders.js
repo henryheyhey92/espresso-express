@@ -5,7 +5,8 @@ async function getUserOrder(userId){
     const order = await Order.where({
         'user_id': userId
     }).fetchAll({
-        'require': true
+        'require': true,
+        'withRelated': ['product', 'user', 'orderStatus']
     })
     return order;
 } 

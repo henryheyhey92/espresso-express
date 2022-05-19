@@ -139,13 +139,17 @@ router.post('/logout', async (req, res) => {
     } else {
         console.log("enter logout")
         jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, user) => {
+            console.log("token");
+            console.log(refreshToken);
+            console.log("is there error");
+            // console.log(err);
             if (err) {
                 return res.sendStatus(403);
             }
 
             const token = new BlacklistedToken();
             token.set('token', refreshToken);
-            token.set('date_created', new Date().toLocaleString("en-sg", { timeZone: "Asia/Singapore" })); // use current date
+            token.set('date_created', new Date()); // use current date .toLocaleString("en-sg", { timeZone: "Asia/Singapore" })
             await token.save();
             res.send({
                 'message': 'logged out'

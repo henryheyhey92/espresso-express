@@ -106,7 +106,8 @@ const api = {
     products: require('./routes/api/products'),
     shoppingCart: require('./routes/api/shoppingCart'),
     checkout: require('./routes/api/checkout'),
-    users: require('./routes/api/users')
+    users: require('./routes/api/users'),
+    orders: require('./routes/api/orders')
 }
 
 const { checkIfAuthenticated, checkIfUserOwnerAuthenticated, checkIfManagerOwnerAuthenticated } = require('./middlewares');
@@ -124,6 +125,7 @@ async function main() {
     app.use('/api/shoppingCart', express.json(), api.shoppingCart);
     app.use('/api/checkout', api.checkout);
     app.use('/api/users/', express.json(), api.users);
+    app.use('/api/orders/', express.json(), api.orders);
     app.use('/orders', checkIfManagerOwnerAuthenticated, orderRoutes);
     //here need to write route for shopping cart and checkout
 }

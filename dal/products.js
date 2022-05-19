@@ -67,18 +67,14 @@ async function searchAllField(reqObject) {
     try {
         let { product_text, roast_type, min_price, max_price, certificates, origins } = reqObject;
         let q = Product.collection();
-
-        if (reqObject.length < 0) {
-            return (await q.fetch({
-                withRelated: ['certificates', 'roastType', 'origins']
-            }))
-        }
+        
 
         if (product_text) {
             q = q.where('product_name', 'like', '%' + product_text + '%');
         }
 
         if (roast_type) {
+            console.log("Enter roast type");
             q = q.where('roast_type_id', '=', roast_type);
         }
 
@@ -90,25 +86,25 @@ async function searchAllField(reqObject) {
             q = q.where('price', '<=', max_price);
         }
 
-        if (certificates) {
-            // joining in bookshelf
-            q.query('join', 'certificates_products', 'products.id', 'product_id')
-                .where('certificate_id', 'in', certificates)
-            // is eqv:
-            // select * from products JOIN products_tags ON products.id 
-        }
+        // if (Array.isArray(certificates)) {
+        //     // joining in bookshelf
+        //     q.query('join', 'certificates_products', 'products.id', 'product_id')
+        //         .where('certificate_id', 'in', certificates)
+        //     // is eqv:
+        //     // select * from products JOIN products_tags ON products.id 
+        // }
 
-        if (origins) {
-            // joining in bookshelf
-            q.query('join', 'origins_products', 'products.id', 'product_id')
-                .where('origin_id', 'in', origins)
-        }
-
+        // if (origins) {
+        //     // joining in bookshelf
+        //     q.query('join', 'origins_products', 'products.id', 'product_id')
+        //         .where('origin_id', 'in', origins)
+        // }
 
         let response = await q.fetch({
             withRelated: ['certificates', 'roastType', 'origins']
         })
-
+        console.log("what is response");
+        console.log(response.toJSON());
         return response;
 
     } catch (e) {

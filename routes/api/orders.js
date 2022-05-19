@@ -10,10 +10,11 @@ const ProductServices = require('../../services/product_services');
 
 router.get('/result/:user_id', async (req, res) => {
     try {
-        
-        let order = new OrderServices();
-        let orderResult = await order.getAllUserOrder();
-        console.log("orderResult");
+        console.log("req params usr id");
+        console.log(req.params.user_id);
+        let order = new OrderServices(req.params.user_id);
+        let orderResult = await order.getUserOrder();
+        console.log("orderResult"); 
         console.log(orderResult.toJSON());
         if(orderResult){
             res.status(200);

@@ -15,8 +15,6 @@
     "host": {
       "ENV": "DB_HOST"
     },
-    "ssl":{
-      "rejectUnauthorized": false
-    }
+    "ssl" : "true"
   }
 }

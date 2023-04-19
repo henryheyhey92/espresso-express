@@ -9,6 +9,10 @@ const FileStore = require('session-file-store')(session);
 const csrf = require('csurf');
 
 
+//some notes
+//for session implementation, the session is use in the backend side of thing in this project
+// the JWT ius use in the front end 
+
 //create an instance of express app
 let app = express();
 
@@ -133,10 +137,10 @@ async function main() {
 main();
 
 //need to change when deploy to heroku
-// app.listen(3001, () => {
-//     console.log("Server has started");
-// })
-
-app.listen(process.env.PORT || 3000, () => {
+app.listen(3001, () => {
     console.log("Server has started");
 })
+
+// app.listen(process.env.PORT || 3000, () => {
+//     console.log("Server has started");
+// })

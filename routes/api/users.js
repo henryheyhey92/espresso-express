@@ -6,6 +6,9 @@ const { checkIfAuthenticatedJWT } = require('../../middlewares');
 const { User, BlacklistedToken } = require('../../models');
 
 
+//When implement a post, always have to attach the access token 
+//for session 
+
 
 const generateAccessToken = (user, secret, expiresIn) => {
     //three arguments
@@ -26,6 +29,7 @@ const getHashedPassword = (password) => {
     return hash;
 }
 
+// this is for register
 router.post('/register/user', async (req, res) => {
     console.log("enter reg user");
     console.log(req.body);
